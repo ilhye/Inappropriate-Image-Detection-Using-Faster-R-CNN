@@ -1,0 +1,12 @@
+MUST NOTE:
+- do not use pretrained model (Used adversarial images) 
+- need gumamit ng AI algorithms (Faster R-CNN)
+- get the metrics, accuracy, then visualize using Jupyter Notebook
+- create gui (ScreenCapture API)
+
+
+PRESENTATION:
+- how you make it together with the system
+- what is the result
+- recommendation 
+- walkthrough to the first module to the last module
