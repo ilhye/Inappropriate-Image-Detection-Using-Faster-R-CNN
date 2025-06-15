@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block main %}
+<div class="m-auto border rounded p-5 w-50 mt-5">
+  <h1 class="text-center mb-3">Inappropriate Image Detection Using Faster R‑CNN</h1>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-info mt-2">{{ messages[0] }}</div>
+    {% endif %}
+  {% endwith %}
+  
+  <form method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <div class="row mb-3">
+      <div class="col-auto">
+        {{ form.uploadImg.label(class="form-label") }}
+      </div>
+      <div class="col">
+        {{ form.uploadImg(class="form-control") }}
+      </div>
+    </div>
+    
+    {{ form.submit(class="btn btn-primary w-100") }}
+  </form>
+</div>
+{% endblock %}

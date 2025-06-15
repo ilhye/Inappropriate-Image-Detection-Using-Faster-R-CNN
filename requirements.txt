@@ -1,0 +1,7 @@
+flask
+flask-wtf
+torch
+torchvision
+pillow
+kaggle
+werkzeug

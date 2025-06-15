@@ -10,3 +10,18 @@ PRESENTATION:
 - what is the result
 - recommendation 
 - walkthrough to the first module to the last module
+
+COMMANDS:
+- python -m venv venv
+- venv\scripts\activate
+
+FILES:
+- __init__.py: initializing blueprints
+- routes.py: intended for routes (moving between pages)
+- main.py: entry point of the Program
+- requirements.txt: required modules for flask to work
+
+FOLDERS:
+- static: includes images, css, javascript
+- pages: pages that users can see
+- auth: authentication
