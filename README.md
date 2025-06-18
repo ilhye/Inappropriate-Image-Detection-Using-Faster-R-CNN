@@ -13,9 +13,11 @@ This project aims to detect inappropriate content in images using a pre-trained 
 - [Faster R-CNN](https://arxiv.org/abs/1506.01497)
 
 ## Datasets
-- [VHD11K](https://arxiv.org/abs/2409.19734)
-- [LSPD](https://sites.google.com/uit.edu.vn/LSPD)
+- [Violence Dataset](https://universe.roboflow.com/securityviolence/violence-detection-p4qev/dataset/4)
 
+To download the dataset:
+```bash
+python dataset.py
 
 ## Installation
 
@@ -31,6 +33,11 @@ This project aims to detect inappropriate content in images using a pre-trained 
 4. Run the application
     ```bash
     python main.py
+
+## Training
+* To train Faster R-CNN on a custom dataset:
+    ```bash
+    python train.py
 
 ## Credits
 Inspired by [snapscope](https://github.com/ErolGelbul/snapscope), developed by Erol Gelbul. We acknowledge its influence in the development of our approach and thank the author for the foundational work.

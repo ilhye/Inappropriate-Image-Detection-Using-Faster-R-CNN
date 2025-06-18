@@ -1,12 +1,12 @@
 import os
 
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import SubmitField
 from werkzeug.utils import secure_filename
 from PIL import Image
-from frcnn import contains_label, annotate
+from frcnn import contains_label, draw_boxes
 
 bp = Blueprint("routes", __name__)
 
@@ -29,24 +29,22 @@ class CreatePost(FlaskForm):
 def index():
     form = CreatePost()
     if form.validate_on_submit():
-        file_storage = form.uploadImg.data
-        pil_img = Image.open(file_storage.stream).convert("RGB")
+        file = request.files.get("uploadImg")
+        pil_img = Image.open(file.stream).convert("RGB")
 
         # Has person == not save to upload
-        if contains_label(pil_img, "person"):
+        if contains_label(pil_img, "violence", score_thresh=0.8):
             flash("Upload rejected: a person was detected in the image.")
             return redirect(url_for("routes.index"))
+        
+        result_img = draw_boxes(pil_img.copy())
 
         # No person == annotate and save
-        file_storage.stream.seek(0)
-        orig_fname = secure_filename(file_storage.filename)
-        annotated_name = f"annot_{orig_fname}"
-        save_path = os.path.join(ANNOT_FOLDER, annotated_name)
+        filename = secure_filename(file.filename)
+        save_path = os.path.join(ANNOT_FOLDER, f"annot_{filename}")
+        result_img.save(save_path)
 
-        annotated_img = annotate(pil_img.copy())
-        annotated_img.save(save_path)
-
-        return redirect(url_for("routes.result", filename=annotated_name))
+        return redirect(url_for("routes.result", filename=f"annot_{filename}"))
 
     return render_template("index.html", form=form)
 

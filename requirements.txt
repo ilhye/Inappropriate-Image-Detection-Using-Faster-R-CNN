@@ -3,5 +3,5 @@ flask-wtf
 torch
 torchvision
 pillow
-kaggle
 werkzeug
+roboflow

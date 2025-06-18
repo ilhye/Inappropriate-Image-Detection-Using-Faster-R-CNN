@@ -1,46 +1,59 @@
 import torch
-import torchvision.transforms as T
-from torchvision.models.detection import fasterrcnn_resnet50_fpn, FasterRCNN_ResNet50_FPN_Weights
-from cocoNames import COCO_NAMES 
+import torchvision
+from torchvision.models.detection import fasterrcnn_resnet50_fpn
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+import torchvision.transforms.functional as F
 from PIL import Image, ImageDraw, ImageFont
+from cocoClass import COCO_CLASSES
 
-# Constants
-_FONT = ImageFont.load_default()
+# Setup
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-_WEIGHTS = FasterRCNN_ResNet50_FPN_Weights.DEFAULT
-_MODEL = fasterrcnn_resnet50_fpn(weights=_WEIGHTS).to(DEVICE).eval()
-_TF = T.Compose([T.ToTensor()])
+_FONT = ImageFont.load_default()
 
-# Confidence score is 0.8
+# COCO Model (for checking 'person')
+_WEIGHTS = torchvision.models.detection.FasterRCNN_ResNet50_FPN_Weights.DEFAULT
+_COCO_MODEL = fasterrcnn_resnet50_fpn(weights=_WEIGHTS).to(DEVICE).eval()
+_TF = torchvision.transforms.ToTensor()
 
-# Check if image contains person
-def contains_label(pil_img: Image.Image, label_to_find: str, score_thresh: float = 0.8) -> bool:
-    assert label_to_find in COCO_NAMES, f"{label_to_find=} not in COCO"
-    img_tensor = _TF(pil_img).unsqueeze(0).to(DEVICE)
+# Load your custom-trained model
+def get_model(num_classes=3):
+    # Load pre-trained Faster R-CNN
+    model = fasterrcnn_resnet50_fpn(pretrained=True)
+    # Get the number of input features for the classifier
+    in_features = model.roi_heads.box_predictor.cls_score.in_features
+    # Replace the pre-trained head with a new one
+    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
+    # Move model to GPU if available
+    model.load_state_dict(torch.load("fasterrcnn_resnet50_epoch_5.pth", map_location=DEVICE))
+    return model.to(DEVICE).eval()
 
+_MODEL = get_model()
+
+# Draw bounding boxes with the correct class names and increase image size
+# threshol = 0.8
+# `prediction` contains:
+# - boxes: predicted bounding boxes
+# - labels: predicted class labels
+# - scores: predicted scores for each box (confidence level)
+def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
+    # Convert image to tensor and add batch dimension
+    img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE) 
+
+    # Disable gradient computation for inference
     with torch.no_grad():
-        out = _MODEL(img_tensor)[0]
-
-    for lbl, sc in zip(out["labels"].cpu(), out["scores"].cpu()):
-        if sc >= score_thresh and COCO_NAMES[lbl] == label_to_find:
-            return True
-    return False
-
-# Annotate image
-def annotate(pil_img: Image.Image,
-             score_thresh: float = 0.8) -> Image.Image:
-    img_tensor = _TF(pil_img).unsqueeze(0).to(DEVICE)
-
-    with torch.no_grad():
-        out = _MODEL(img_tensor)[0]
+        pred = _MODEL(img_tensor)[0]
 
     draw = ImageDraw.Draw(pil_img)
-    for box, lbl, sc in zip(out["boxes"], out["labels"], out["scores"]):
-        if sc < score_thresh:
+    for box, label, score in zip(pred["boxes"], pred["labels"], pred["scores"]):
+        if score < score_thresh:
             continue
         xmin, ymin, xmax, ymax = map(int, box)
-        cls_name = COCO_NAMES[lbl]
-        draw.rectangle([xmin, ymin, xmax, ymax], outline="red", width=2)
-        draw.text((xmin, ymin), f"{cls_name}:{sc:.2f}", fill="red", font=_FONT)
+
+        # Get class name from COCO_CLASSES
+        class_name = COCO_CLASSES.get(label.item(), "Unknown")
+
+        # Display the image
+        draw.rectangle([xmin, ymin, xmax, ymax], outline="blue", width=2)
+        draw.text((xmin, ymin), f"{class_name} ({score:.2f})", fill="blue", font=_FONT)
 
     return pil_img
