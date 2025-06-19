@@ -16,7 +16,7 @@ _COCO_MODEL = fasterrcnn_resnet50_fpn(weights=_WEIGHTS).to(DEVICE).eval()
 _TF = torchvision.transforms.ToTensor()
 
 # Load your custom-trained model
-def get_model(num_classes=3):
+def get_model(weights_path="trained-model/fasterrcnn_resnet50_epoch_5.pth", num_classes=3):
     # Load pre-trained Faster R-CNN
     model = fasterrcnn_resnet50_fpn(pretrained=True)
     # Get the number of input features for the classifier
@@ -24,7 +24,7 @@ def get_model(num_classes=3):
     # Replace the pre-trained head with a new one
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
     # Move model to GPU if available
-    model.load_state_dict(torch.load("fasterrcnn_resnet50_epoch_5.pth", map_location=DEVICE))
+    model.load_state_dict(torch.load(weights_path, map_location=DEVICE))
     return model.to(DEVICE).eval()
 
 _MODEL = get_model()

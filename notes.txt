@@ -4,6 +4,10 @@ MUST NOTE:
 - get the metrics, accuracy, then visualize using Jupyter Notebook
 - create gui (ScreenCapture API)
 
+TO ADD:
+- filter violence
+- mAP, F1 score, accuracy
+- login, newsfeed, account ui (optional)
 
 PRESENTATION:
 - how you make it together with the system
@@ -14,6 +18,7 @@ PRESENTATION:
 COMMANDS:
 - python -m venv venv
 - venv\scripts\activate
+- python -r requirements.txt
 
 FILES:
 - __init__.py: initializing blueprints

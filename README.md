@@ -15,10 +15,9 @@ This project aims to detect inappropriate content in images using a pre-trained 
 ## Datasets
 - [Violence Dataset](https://universe.roboflow.com/securityviolence/violence-detection-p4qev/dataset/4)
 
-To download the dataset:
-```bash
-python dataset.py
-
+* To download the dataset:
+    ```bash
+    python dataset.py
 ## Installation
 
 1. **Create a virtual environment**
