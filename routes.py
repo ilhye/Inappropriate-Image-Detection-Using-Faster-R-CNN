@@ -6,7 +6,7 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import SubmitField
 from werkzeug.utils import secure_filename
 from PIL import Image
-from frcnn import draw_boxes
+from frcnn import draw_boxes, contains_label
 
 bp = Blueprint("routes", __name__)
 
@@ -33,9 +33,9 @@ def index():
         pil_img = Image.open(file.stream).convert("RGB")
 
         # Has person == not save to upload
-        # if contains_label(pil_img, "violence", score_thresh=0.8):
-        #     flash("Upload rejected: a person was detected in the image.")
-        #     return redirect(url_for("routes.index"))
+        if contains_label(pil_img, "violence", score_thresh=0.8):
+            flash("Upload rejected: Image contains violence")
+            return redirect(url_for("routes.index"))
         
         result_img = draw_boxes(pil_img.copy())
 

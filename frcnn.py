@@ -57,3 +57,14 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
         draw.text((xmin, ymin), f"{class_name} ({score:.2f})", fill="blue", font=_FONT)
 
     return pil_img
+
+# Check if image contains person
+def contains_label(pil_img: Image.Image, label_to_find: str, score_thresh: float = 0.8) -> bool:
+    img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE)
+    with torch.no_grad():
+        pred = _MODEL(img_tensor)[0]
+    for label, score in zip(pred["labels"], pred["scores"]):
+        class_name = COCO_CLASSES.get(label.item(), "Unknown")
+        if class_name.lower() == label_to_find.lower() and score >= score_thresh:
+            return True
+    return False
