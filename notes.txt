@@ -30,3 +30,9 @@ FOLDERS:
 - static: includes images, css, javascript
 - pages: pages that users can see
 - auth: authentication
+
+FOR TESTING AND VALIDATION
+- google colab removes files after run time is finish, make sure to reupload the epoch 5 to avoid re-running the training section
+- run load dataset section
+- upload _annotations.coco.json files inside every folder of the dataset segmentation
+- run validation/ testing part
