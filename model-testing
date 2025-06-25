@@ -7,6 +7,7 @@ from torchvision.datasets import CocoDetection
 from torchvision.transforms import functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
+from tqdm import tqdm # Import tqdm for the progress bar
 
 # Define transformations
 class CocoTransform:
@@ -34,14 +35,13 @@ val_dataset = get_coco_dataset(
 )
 
 # --- Add this section to check for empty ground truth images ---
-# This loop manually iterates through the dataset to check annotations
 empty_gt_images_in_val = 0
 for i in range(len(val_dataset)):
     try:
         # CocoDetection's __getitem__ returns (image, annotations_list)
         # annotations_list is a list of dictionaries, one per object
         # If no objects, it's an empty list.
-        _, annotations = val_dataset[i]
+        _, annotations = val_dataset.coco.loadAnns(val_dataset.coco.getAnnIds(imgIds=val_dataset.ids[i]))
         if not annotations: # Check if the list of annotations is empty
             empty_gt_images_in_val += 1
             # You can also print the image ID if you want to know which ones
@@ -128,24 +128,24 @@ def draw_boxes(image, prediction, fig_size=(10, 10)):
 # Display the image with bounding boxes and correct labels
 draw_boxes(Image.open(image_path), prediction, fig_size=(12, 10))  # Example of increased size
 
-# Assuming you have val_loader, model, and device defined from your notebook
-
 def calculate_detection_metrics(model, data_loader, device, iou_threshold=0.5, score_threshold=0.5):
     model.eval()
     tp = 0
     fp = 0
     fn = 0
     tn = 0 # Initialize True Negatives
+    total_images_processed = 0 # Track total images processed
 
     with torch.no_grad():
-        for images, targets in data_loader:
+        for images, targets in tqdm(data_loader, desc="Calculating Detection Metrics"): # Added tqdm for progress
+            total_images_processed += len(images) # Accumulate total images processed
             images = [img.to(device) for img in images]
 
             processed_targets = []
-            for target in targets:
+            for target_list_for_image in targets: # targets is a tuple of lists of dicts
                 boxes = []
                 labels = []
-                for obj in target:
+                for obj in target_list_for_image:
                     bbox = obj["bbox"]
                     x, y, w, h = bbox
                     if w > 0 and h > 0:
@@ -188,7 +188,7 @@ def calculate_detection_metrics(model, data_loader, device, iou_threshold=0.5, s
                 if len(gt_boxes) == 0 and len(pred_boxes_filtered) == 0:
                     tn += 1
 
-    return tp, fp, fn, tn
+    return tp, fp, fn, tn, total_images_processed # Return total_images_processed as well
 
 def calculate_per_image_metrics(pred_boxes, pred_labels, gt_boxes, gt_labels, iou_threshold):
     tp = 0
@@ -242,9 +242,58 @@ def calculate_iou(box1, box2):
         return 0
     return inter_area / union_area
 
-# Call the function to get the metrics
-tp, fp, fn, tn = calculate_detection_metrics(model, val_loader, device, iou_threshold=0.5)
-print(f"True Positives: {tp}")
-print(f"False Positives: {fp}")
-print(f"False Negatives: {fn}")
-print(f"True Negatives (image-level): {tn}")
+# Call the function to get the raw counts and total images
+tp, fp, fn, tn, total_images = calculate_detection_metrics(model, val_loader, device, iou_threshold=0.5)
+
+# Print TP, FP, FN, TN using the content moderation terminology
+print(f"\n--- Confusion Matrix Counts (Content Moderation System) ---")
+print(f"True Positives (Correctly detected harmful content): {tp}")
+print(f"False Positives (Safe content incorrectly flagged as harmful): {fp}")
+print(f"False Negatives (Harmful content missed by the system): {fn}")
+print(f"True Negatives (Correctly identified safe content): {tn}")
+print(f"Total Images Processed: {total_images}")
+
+
+# --- Compute and Print Metrics based on your provided formulas ---
+
+# Precision
+# Formula: TP / (TP + FP)
+precision_denominator = tp + fp
+precision = tp / precision_denominator if precision_denominator > 0 else 0
+print(f"\nPrecision = TP / (TP + FP)")
+print(f"Precision = {tp} / ({tp} + {fp})")
+print(f"Precision = {tp} / {precision_denominator}")
+print(f"Precision: {precision:.4f}")
+
+# Recall
+# Formula: TP / (TP + FN)
+recall_denominator = tp + fn
+recall = tp / recall_denominator if recall_denominator > 0 else 0
+print(f"\nRecall = TP / (TP + FN)")
+print(f"Recall = {tp} / ({tp} + {fn})")
+print(f"Recall = {tp} / {recall_denominator}")
+print(f"Recall: {recall:.4f}")
+
+# F1 Score
+# Formula: 2 * (Precision * Recall) / (Precision + Recall)
+f1_denominator = precision + recall
+f1_score = (2 * precision * recall) / f1_denominator if f1_denominator > 0 else 0
+print(f"\nF1 Score = 2 * (Precision * Recall) / (Precision + Recall)")
+print(f"F1 Score = 2 * ({precision:.4f} * {recall:.4f}) / ({precision:.4f} + {recall:.4f})")
+print(f"F1 Score = {2 * precision * recall:.4f} / {f1_denominator:.4f}")
+print(f"F1 Score: {f1_score:.4f}")
+
+# Accuracy
+# Formula: (TP + TN) / (TP + TN + FP + FN)
+accuracy_numerator = tp + tn
+accuracy_denominator = tp + tn + fp + fn
+accuracy = accuracy_numerator / accuracy_denominator if accuracy_denominator > 0 else 0
+print(f"\nAccuracy = (TP + TN) / (TP + TN + FP + FN)")
+print(f"Accuracy = ({tp} + {tn}) / ({tp} + {tn} + {fp} + {fn})")
+print(f"Accuracy = {accuracy_numerator} / {accuracy_denominator}")
+print(f"Accuracy: {accuracy:.4f}")
+
+# Average Precision (AP) and Mean Average Precision (mAP)
+print("\nNote: Mean Average Precision (mAP) and Average Precision (AP) are not directly")
+print("computable from simple sums of TP, TN, FP, FN. They require more complex")
+print("Precision-Recall curve analysis (e.g., using libraries like torchmetrics).")
