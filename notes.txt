@@ -1,8 +1,9 @@
 MUST NOTE:
 - do not use pretrained model (Used adversarial images) 
 - need gumamit ng AI algorithms (Faster R-CNN)
-- get the metrics, accuracy, then visualize using Jupyter Notebook
-- create gui (ScreenCapture API)
+- get the metrics, accuracy, then visualize using Jupyter Notebook or Google Colab
+- create gui
+- used mvc
 
 TO ADD:
 - filter violence
