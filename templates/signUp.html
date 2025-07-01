@@ -11,21 +11,30 @@
     <div class="row mb-3">
       <div class="col-md-12 mb-3">
         {{ form.username.label(class="form-label", for="username")}} <br />
-        {{form.username (class="form-control" + ("
-        is-invalid" if form.username.errors else ""), id="username",
-        placeholder="Enter your username")}} {% for error in
-        form.username.errors %}
+        {{form.username (class="form-control" + (" is-invalid" if
+        form.username.errors else ""), id="username", placeholder="Enter your username")}} {% for error in form.username.errors %}
         <div class="invalid-feedback d-block">* {{error}}</div>
         {%endfor%}
       </div>
       <div class="col-md-12 mb-3">
         {{ form.password.label(class="form-label", for="password")}} <br />
-        {{ form.password (class="form-control" + ("
-        is-invalid" if form.password.errors else ""), id="password",
-        placeholder="Enter your password") }} {% for error in
-        form.password.errors %}
+        {{ form.password (class="form-control" + (" is-invalid" if
+        form.password.errors else ""), id="password", placeholder="Enter your password") }} {% for error in form.password.errors %}
         <div class="invalid-feedback d-block">* {{error}}</div>
         {%endfor%}
+      </div>
+      <div class="col-md-12 form-check mb-3 ms-3">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="consent"
+        />
+        <label class="form-check-label small" for="consent">
+          I consent to the collection, storage, and use of the images I upload
+          for research and system improvement purposes. I confirm that I have
+          the right to upload these images.
+        </label>
       </div>
 
       <div class="col-md-2 mb-2 w-100">
