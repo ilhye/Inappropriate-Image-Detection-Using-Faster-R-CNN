@@ -37,3 +37,5 @@ FOR TESTING AND VALIDATION
 - run load dataset section
 - upload _annotations.coco.json files inside every folder of the dataset segmentation
 - run validation/ testing part
+
+- https://ravjot03.medium.com/detecting-vehicles-in-videos-with-faster-r-cnn-a-step-by-step-guide-932bbabf978b
