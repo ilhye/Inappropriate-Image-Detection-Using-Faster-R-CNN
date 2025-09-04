@@ -18,14 +18,21 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_FOLDER, exist_ok=True)
 
 # Create Post
+
+
 class CreatePost(FlaskForm):
-    uploadImg = FileField(
+    media = FileField(
         "Upload File",
-        validators=[FileRequired("Please enter file"), FileAllowed(["jpg", "jpeg", "png"], "Images only!")],
+        validators=[FileRequired("Please enter file"), FileAllowed(
+            ["jpg", "jpeg", "png, mp4, mkv"])],
     )
+    description = StringField("Description", validators=[
+                              DataRequired("Please enter a description")])
     submit = SubmitField("Post")
 
 # Login Form
+
+
 class Login(FlaskForm):
     username = StringField('Username', validators=[
                            DataRequired("Please enter your username")])
@@ -33,12 +40,38 @@ class Login(FlaskForm):
                              DataRequired("Please enter your password")])
     submit = SubmitField('Sign In')
 
+# New Account
+
+
 class NewAccount(FlaskForm):
     username = StringField('Username', validators=[
                            DataRequired("Please enter your username")])
     password = PasswordField('Password', validators=[
                              DataRequired("Please enter your password")])
     submit = SubmitField('Sign In')
+
+# Newsfeed
+@bp.route("/newsfeed", methods=["GET"])
+def newsfeed():
+    form = CreatePost()
+
+    if form.validate_on_submit():
+        description = form.description.data
+        media = form.media.data
+
+    return render_template("newsfeed.html", form=form)
+
+# New Post
+# @bp.route("/newPost", methods=["POST"])
+# def new_post():
+#     form = CreatePost()
+
+#     if form.validate_on_submit():
+#         description = form.description.data
+
+ 
+#     return render_template("newPost.html", form=form)
+
 
 # Route
 @bp.route("/post", methods=["GET", "POST"])
@@ -53,7 +86,7 @@ def index():
         if contains_label(pil_img, "violence", score_thresh=0.8):
             flash("Upload rejected: Image contains violence")
             return redirect(url_for("routes.index"))
-        
+
         result_img = draw_boxes(pil_img.copy())
 
         # No violence == annotate and save
@@ -66,10 +99,13 @@ def index():
     return render_template("index.html", form=form, username=username)
 
 # Route: Result
+
+
 @bp.route("/result/<path:filename>")
 def result(filename):
     image_url = url_for("static", filename=f"annotated/{filename}")
     return render_template("result.html", image_url=image_url)
+
 
 @bp.route("/", methods=["GET", "POST"])
 def login():
@@ -81,6 +117,7 @@ def login():
         session["username"] = username
         return redirect(url_for("routes.index"))
     return render_template("signIn.html", form=form)
+
 
 @bp.route("/signUp", methods=["GET", "POST"])
 def signUp():

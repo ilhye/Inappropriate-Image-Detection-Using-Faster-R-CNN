@@ -1,5 +1,5 @@
-{% extends 'base.html' %} {% block main %}
-<div class="m-auto border rounded p-5 w-50 mt-5 shadow">
+{% extends 'auth-layout.html' %} {% block right %}
+<div class="m-auto border rounded pt-3 pb-3 ps-5 pe-5 mt-5 shadow">
   <h1 class="text-center mb-3">Sign Up</h1>
 
   {% with messages = get_flashed_messages() %} {% if messages %}
@@ -43,7 +43,7 @@
       <a
         href="{{ url_for('routes.login') }}"
         class="text-decoration-none small text-center text-black"
-        >Already have an account <span class="fw-bold">Sign In</span></a
+        >Already have an account? <span class="fw-bold text-primary">Sign In</span></a
       >
     </div>
   </form>
