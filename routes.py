@@ -21,10 +21,9 @@ os.makedirs(ANNOT_FOLDER, exist_ok=True)
 
 
 class CreatePost(FlaskForm):
-    media = FileField(
+    uploadImg = FileField(
         "Upload File",
-        validators=[FileRequired("Please enter file"), FileAllowed(
-            ["jpg", "jpeg", "png"])],
+        validators=[FileRequired("Please enter file"), FileAllowed(["jpg", "jpeg", "png"], "Images only!")],
     )
     description = StringField("Description", validators=[
                               DataRequired("Please enter a description")])
@@ -64,7 +63,7 @@ def newsfeed():
     username = session.get("username")
     form = CreatePost()
     if form.validate_on_submit():
-        file = request.files.get("media")
+        file = request.files.get("uploadImg")
         pil_img = Image.open(file.stream).convert("RGB")
 
         # Has violence == not save to upload
@@ -99,21 +98,17 @@ def newsfeed():
 # Route
 @bp.route("/post", methods=["GET", "POST"])
 def index():
-    # username = session.get("username")
+    username = session.get("username")
     form = CreatePost()
-    print("entrypoint")
-    
-    if form.validate_on_submit():
-        print("enter")
-        file = request.files.get("media")
+    if request.method == "POST" and form.validate_on_submit():
+        file = request.files.get("uploadImg")
         pil_img = Image.open(file.stream).convert("RGB")
 
         # Has violence == not save to upload
         if contains_label(pil_img, "violence", score_thresh=0.8):
             flash("Upload rejected: Image contains violence")
-            print("rejected")
             return redirect(url_for("routes.index"))
-
+        
         result_img = draw_boxes(pil_img.copy())
 
         # No violence == annotate and save
@@ -121,10 +116,9 @@ def index():
         save_path = os.path.join(ANNOT_FOLDER, f"annot_{filename}")
         result_img.save(save_path)
 
-        return redirect(url_for("routes.result", filename=f"annot_{filename}"))
+        return redirect(url_for("routes.result", filename=f"annot_{filename}", username=username))
 
-    print("endpoint")
-    return render_template("index.html", form=form)
+    return render_template("index.html", form=form, username=username)
 
 # Route: Result
 @bp.route("/result/<path:filename>")

@@ -10,18 +10,18 @@
   <div class="alert alert-danger mt-2">{{ messages[0] }}</div>
   {% endif %} {% endwith %}
 
-  <form method="POST" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" action="{{ url_for('routes.index') }}">
     {{ form.hidden_tag() }}
 
     <div class="row p-4">
       <div class="d-flex gap-3">
         <div class="col-auto">
-          {{ form.media.label(class="form-label", for="upload") }}
+          {{ form.uploadImg.label(class="form-label", for="upload") }}
         </div>
         <div class="col mb-4">
-          {{ form.media(class="form-control"+ (" is-invalid" if
-          form.media.errors else ""), id="upload", placeholder="Choose a
-          file")}} {% for error in form.media.errors %}
+          {{ form.uploadImg(class="form-control"+ (" is-invalid" if
+          form.uploadImg.errors else ""), id="upload", placeholder="Choose a
+          file")}} {% for error in form.uploadImg.errors %}
           <div class="invalid-feedback d-block">* {{error}}</div>
           {%endfor%}
         </div>
