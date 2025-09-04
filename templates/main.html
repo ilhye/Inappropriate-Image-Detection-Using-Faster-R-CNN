@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Content Moderation</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style></style>
+  </head>
+  <body>
+    <div class="container-fluid p-0">
+      <nav
+        class="navbar navbar-expand-lg position-fixed w-100"
+        style="background-color: #e3f2fd"
+      >
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Navbar</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Features</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Pricing</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+      <div
+        class="hero text-center"
+        id="hero"
+        style="padding-top: 150px; padding-bottom: 50px"
+      >
+        <h1>Inappropriate Image Detection Using Faster R-CNN</h1>
+        <h6 class="fw-normal m-auto w-50 pt-2 pb-2">
+          This system uses the Faster R-CNN architecture to detect and filter
+          out NSFW content (images and videos), effectively identifying
+          inappropriate material even in the presence of adversarial attacks. It
+          supports safer content moderation across various platforms.
+        </h6>
+        <button class="btn btn-primary w-50 mt-2">Learn More</button>
+      </div>
+      <div class="about pt-2 pb-2">
+        <div class="row">
+          <div class="col-md-7">
+            <h1>About This Project</h1>
+            <p>
+              The rapid growth of user-generated content has made automated
+              content moderation essential for maintaining safe online
+              environments. Deep learning models, especially Convolutional
+              Neural Networks (CNNs), are widely used for detecting harmful or
+              inappropriate content in real time. However, these systems are
+              vulnerable to adversarial attacks, subtle image manipulations that
+              can mislead detection models and allow malicious content to bypass
+              filters.
+              <br />
+              <br />
+              This research leverages the Faster R-CNN architecture to improve
+              the detection of cloaked or adversarially altered NSFW content.
+              Its two-stage design enables more precise region identification
+              and classification, making it well-suited for identifying subtly
+              distorted inputs. By integrating adversarial purification
+              techniques, the system aims to enhance resilience and reliability
+              in automated content moderation.
+            </p>
+          </div>
+          <div class="col-md-5">
+            <img
+              src="https://i.pinimg.com/736x/7b/47/08/7b47089257350c0253124f108018f1e3.jpg"
+              alt="NSFW"
+              class="img-fluid rounded"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="content-moderation pt-2 pb-2">
+        <div class="row">
+          <div class="col-md-6" id="upload-section">
+            <div class="m-auto border rounded p-4 mt-5 shadow">
+              <h1 class="text-center mb-3">Content Moderation</h1>
+
+              {% with messages = get_flashed_messages() %} {% if messages %}
+              <div class="alert alert-danger mt-2">{{ messages[0] }}</div>
+              {% endif %} {% endwith %}
+
+              <form
+                method="POST"
+                enctype="multipart/form-data"
+                action="{{ url_for('routes.content_moderation') }}"
+              >
+                {{ form.hidden_tag() }}
+
+                <div class="row p-4">
+                  <div class="d-flex gap-3">
+                    <div class="col-auto">
+                      {{ form.uploadImg.label(class="form-label", for="upload")
+                      }}
+                    </div>
+                    <div class="col mb-4">
+                      {{ form.uploadImg(class="form-control"+ (" is-invalid" if
+                      form.uploadImg.errors else ""), id="upload",
+                      placeholder="Choose a file")}} {% for error in
+                      form.uploadImg.errors %}
+                      <div class="invalid-feedback d-block">* {{error}}</div>
+                      {%endfor%}
+                    </div>
+                  </div>
+
+                  <div class="col-md-12">
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="col-md-6" id="result-section">
+            <div class="m-auto border rounded p-5 mt-5 shadow">
+              <h1 class="text-center mb-3">Result</h1>
+              {% if image_url %}
+              <img
+                src="{{ image_url }}"
+                class="img-fluid"
+                alt="Detected Objects"
+              />
+              {% else %}
+              <p class="text-center text-muted">No result yet.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
