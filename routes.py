@@ -24,7 +24,7 @@ class CreatePost(FlaskForm):
     media = FileField(
         "Upload File",
         validators=[FileRequired("Please enter file"), FileAllowed(
-            ["jpg", "jpeg", "png, mp4, mkv"])],
+            ["jpg", "jpeg", "png"])],
     )
     description = StringField("Description", validators=[
                               DataRequired("Please enter a description")])
@@ -51,41 +51,26 @@ class NewAccount(FlaskForm):
     submit = SubmitField('Sign In')
 
 # Newsfeed
-@bp.route("/newsfeed", methods=["GET"])
+
+
+@bp.route("/newsfeed", methods=["GET", "POST"])
 def newsfeed():
-    form = CreatePost()
+    # form = CreatePost()
 
-    if form.validate_on_submit():
-        description = form.description.data
-        media = form.media.data
+    # if form.validate_on_submit():
+    #     description = form.description.data
+    #     media = form.media.data
 
-    return render_template("newsfeed.html", form=form)
-
-# New Post
-# @bp.route("/newPost", methods=["POST"])
-# def new_post():
-#     form = CreatePost()
-
-#     if form.validate_on_submit():
-#         description = form.description.data
-
- 
-#     return render_template("newPost.html", form=form)
-
-
-# Route
-@bp.route("/post", methods=["GET", "POST"])
-def index():
     username = session.get("username")
     form = CreatePost()
     if form.validate_on_submit():
-        file = request.files.get("uploadImg")
+        file = request.files.get("media")
         pil_img = Image.open(file.stream).convert("RGB")
 
         # Has violence == not save to upload
         if contains_label(pil_img, "violence", score_thresh=0.8):
             flash("Upload rejected: Image contains violence")
-            return redirect(url_for("routes.index"))
+            return redirect(url_for("routes.newfeed"))
 
         result_img = draw_boxes(pil_img.copy())
 
@@ -96,11 +81,52 @@ def index():
 
         return redirect(url_for("routes.result", filename=f"annot_{filename}", username=username))
 
-    return render_template("index.html", form=form, username=username)
+    # return render_template("index.html", form=form, username=username)
+    return render_template("newsfeed.html", form=form)
+
+# New Post
+# @bp.route("/newPost", methods=["POST"])
+# def new_post():
+#     form = CreatePost()
+
+#     if form.validate_on_submit():
+#         description = form.description.data
+
+
+#     return render_template("newPost.html", form=form)
+
+
+# Route
+@bp.route("/post", methods=["GET", "POST"])
+def index():
+    # username = session.get("username")
+    form = CreatePost()
+    print("entrypoint")
+    
+    if form.validate_on_submit():
+        print("enter")
+        file = request.files.get("media")
+        pil_img = Image.open(file.stream).convert("RGB")
+
+        # Has violence == not save to upload
+        if contains_label(pil_img, "violence", score_thresh=0.8):
+            flash("Upload rejected: Image contains violence")
+            print("rejected")
+            return redirect(url_for("routes.index"))
+
+        result_img = draw_boxes(pil_img.copy())
+
+        # No violence == annotate and save
+        filename = secure_filename(file.filename)
+        save_path = os.path.join(ANNOT_FOLDER, f"annot_{filename}")
+        result_img.save(save_path)
+
+        return redirect(url_for("routes.result", filename=f"annot_{filename}"))
+
+    print("endpoint")
+    return render_template("index.html", form=form)
 
 # Route: Result
-
-
 @bp.route("/result/<path:filename>")
 def result(filename):
     image_url = url_for("static", filename=f"annotated/{filename}")

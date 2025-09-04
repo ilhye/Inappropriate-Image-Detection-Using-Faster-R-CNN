@@ -39,3 +39,8 @@ FOR TESTING AND VALIDATION
 - run validation/ testing part
 
 - https://ravjot03.medium.com/detecting-vehicles-in-videos-with-faster-r-cnn-a-step-by-step-guide-932bbabf978b
+
+PLAN--
+- Navbar: 
+    User - Newsfeed, Profile, Notification, Report Contents, Account, Help/Guidelines, Logout
+    Admin - Dashboard, Review Queue, Flagged Post, Users, Audit log, Logout

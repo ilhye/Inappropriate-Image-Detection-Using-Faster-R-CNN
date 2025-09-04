@@ -1,0 +1,60 @@
+<div class="logo mb-2">
+  <h5 class="logo-text text-center m-0 text-white">IDentity</h5>
+</div>
+<div class="container-fluid d-flex p-0" style="height: 100vh">
+  <div
+    id="sidebar"
+    class="d-flex flex-column flex-shrink-0 p-3 bg-primary text-white offcanvas-md offcanvas-start w-25"
+  >
+    <a href="#" class="navbar-brand"> IDentity </a>
+    <hr />
+    <ul class="mynav nav nav-pills flex-column mb-auto">
+      <li class="nav-item mb-1">
+        <a href="#" class="text-decoration-none text-white">
+          <i class="fa-regular fa-user"></i>
+          ID's
+        </a>
+      </li>
+
+      <li class="nav-item mb-1">
+        <a href="#" class="text-decoration-none text-white">
+          <i class="fa-regular fa-bookmark"></i>
+          Notification
+          <span class="notification-badge">5</span>
+        </a>
+      </li>
+      <li class="nav-item mb-1">
+        <a href="#" class="text-decoration-none text-white">
+          <i class="fa-regular fa-newspaper"></i>
+          Profile
+        </a>
+      </li>
+      <li class="nav-item mb-1">
+        <a href="#" class="text-decoration-none text-white">
+          <i class="fa-solid fa-archway"></i>
+          Settings
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="flex-fill" style="background-color: white">
+    <div class="p-2 d-md-none d-flex text-white bg-primary">
+      <a
+        href="#"
+        class="text-white"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#bdSidebar"
+        class="text-decoration-none text-white"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </a>
+      <span class="ms-3">IDentity</span>
+    </div>
+    <div class="p-4">
+      <div class="row">
+        <div class="col">{% block main %} {% endblock %}</div>
+      </div>
+    </div>
+  </div>
+</div>
