@@ -1,14 +1,12 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-
 @theme {
-    --font-heading: "Playfair Display", serif;
-    --font-body: "Lato", sans-serif;
+    --font-play: "Playfair Display", serif;
+    --font-lato: "Lato", sans-serif;
 }
 
 .card {
-    @apply bg-white border-1 border-gray-200 rounded-sm overflow-hidden shadow-md shadow-gray-200 relative;
+    @apply bg-white border-1 border-gray-200 rounded-sm overflow-hidden p-4 shadow-md shadow-gray-200 relative;
 }
 
 .badge {
@@ -16,5 +14,28 @@
 }
 
 .btn {
-    @apply rounded-full p-2 uppercase text-xs font-bold cursor-pointer font-body tracking-wider w-fit;
+    @apply rounded-full p-2 uppercase text-[16px] font-bold font-lato cursor-pointer tracking-wider w-50 text-center;
+}
+
+.container-full {
+    @apply p-10 md:p-20 sm:p-10 w-full
+}
+
+.heading {
+    @apply text-xl md:text-5xl/18 sm:text-xl font-play mt-20
+}
+
+.subheading {
+    @apply text-base md:text-4xl/8 sm:text-lg font-play text-center mb-2
+}
+
+.subsubheading {
+    @apply text-base md:text-2xl/8 sm:text-base font-play text-center mb-2
+}
+.caption {
+    @apply text-xs md:text-sm/6 sm:text-xs font-lato text-gray-500 mb-4 md:mb-10 text-center
+}
+
+.normal {
+    @apply text-sm md:text-base/8 sm:text-sm font-lato
 }

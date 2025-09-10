@@ -24,7 +24,7 @@ class CreatePost(FlaskForm):
         validators=[FileRequired("Please enter file"), FileAllowed(
             ["jpg", "jpeg", "png"], "Images only!")],
     )
-    submit = SubmitField("Post")
+    submit = SubmitField("Submit")
 
 @bp.route("/", methods=["GET", "POST"])
 def content_moderation():
