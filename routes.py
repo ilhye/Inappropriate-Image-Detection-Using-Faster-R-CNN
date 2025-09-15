@@ -38,9 +38,9 @@ def content_moderation():
         pil_img = Image.open(file.stream).convert("RGB")
 
         # Has violence == not save to upload
-        if contains_label(pil_img, "violence", score_thresh=0.8):
-            flash("Upload rejected: Image contains violence")
-            return redirect(url_for("routes.content_moderation"))
+        # if contains_label(pil_img, "violence", score_thresh=0.8):
+        #     flash("Upload rejected: Image contains violence")
+        #     return redirect(url_for("routes.content_moderation"))
 
         result_img = draw_boxes(pil_img.copy())
 
