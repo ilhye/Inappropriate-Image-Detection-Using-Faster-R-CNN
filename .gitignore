@@ -3,8 +3,11 @@ venv
 __pycache__
 violence-detection-4
 trained-model
-static/annotated
+annotated
 uploads
 node_modules
 model-testing.txt
 Faster_R_CNN_violence_detection_copy.ipynb
+vhd11k annotation
+LSPD_trained_model
+test.py
