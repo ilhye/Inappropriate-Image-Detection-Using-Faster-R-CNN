@@ -1,1 +1,0 @@
-COCO_CLASSES = {0: "violence-no_violence", 1: "non_violence", 2: "violence"}

@@ -9,5 +9,9 @@ node_modules
 model-testing.txt
 Faster_R_CNN_violence_detection_copy.ipynb
 vhd11k annotation
-LSPD_trained_model
+LSPD_trained_models
 test.py
+fasterrcnn_resnet50_epoch_3.pth
+trained
+NSFW_FRCNN_Detection.ipynb
+lspd-vhd11k-trained
