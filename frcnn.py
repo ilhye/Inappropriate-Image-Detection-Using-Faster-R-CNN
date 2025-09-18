@@ -9,13 +9,14 @@ import torchvision.transforms.functional as F
 from PIL import Image, ImageDraw, ImageFont
 from cocoClass import COCO_CLASSES
 
+# Load default model
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 _FONT = ImageFont.load_default()
-
 _WEIGHTS = torchvision.models.detection.FasterRCNN_ResNet50_FPN_Weights.DEFAULT
 _COCO_MODEL = fasterrcnn_resnet50_fpn(weights=_WEIGHTS).to(DEVICE).eval()
 _TF = torchvision.transforms.ToTensor()
 
+# Load custom model
 def get_model(weights_path="trained-model/fasterrcnn_resnet50_epoch_5.pth", num_classes=3):
     model = fasterrcnn_resnet50_fpn(pretrained=True)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
@@ -25,6 +26,7 @@ def get_model(weights_path="trained-model/fasterrcnn_resnet50_epoch_5.pth", num_
 
 _MODEL = get_model()
 
+# Output media with bounding boxes and their classes
 def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
     img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE) 
 

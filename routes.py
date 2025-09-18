@@ -18,8 +18,6 @@ os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
 # Create Post
-
-
 class CreatePost(FlaskForm):
     uploadImg = FileField(
         "Upload File",
@@ -28,12 +26,10 @@ class CreatePost(FlaskForm):
     )
     submit = SubmitField("Submit")
 
-
 def file_type(file):
     file_name, file_extension = os.path.splitext(file.filename)
     print(f"Extension:{file_extension}")
     return file_extension[1:].lower()
-
 
 @bp.route("/", methods=["GET", "POST"])
 def content_moderation():
