@@ -51,7 +51,7 @@ def content_moderation():
         if file_ext in ["jpg", "jpeg", "png"]:
             result_img, class_names = detect_image(file)
             result_img.save(annot_path)
-            media_url = url_for("static", filename=f"img-annotated/pred_{filename}")
+            media_url = url_for("static", filename=f"annotated/pred_{filename}")
             
             print("image received")
             print("Detected classes:", class_names)
@@ -71,7 +71,7 @@ def content_moderation():
         elif file_ext in ["mp4", "mkv", "avi", "mov"]:         
             result_vid, class_names = detect_video(upload_path, annot_path)
             result_vid.save(annot_path)
-            media_url = url_for("static", filename=f"vid-annotated/pred_{filename}")
+            media_url = url_for("static", filename=f"annotated/pred_{filename}")
 
             print("video received")
             print("Detected classes:", class_names)

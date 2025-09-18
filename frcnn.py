@@ -78,6 +78,7 @@ def detect_video(input_path, output_path):
         detections_all.extend(class_names)
 
         annotated_cv2 = cv2.cvtColor(np.array(annotated_pil), cv2.COLOR_RGB2BGR)
+        print("erite")
         out.write(annotated_cv2)
 
     cap.release()
