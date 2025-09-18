@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+    --font-play: "Playfair Display", serif;
+    --font-lato: "Lato", sans-serif;
+}
+
+.card {
+    @apply bg-white border-1 border-gray-200 rounded-sm overflow-hidden p-4 shadow-md shadow-gray-200 relative;
+}
+
+.badge {
+    @apply bg-pink-500 text-white text-center text-xs rounded-full p-2 absolute top-0 ml-2 mt-2;
+}
+
+.btn {
+    @apply rounded-full p-2 uppercase text-[16px] font-bold font-lato cursor-pointer tracking-wider w-50 text-center;
+}
+
+.container-full {
+    @apply p-10 md:p-20 sm:p-10 w-full
+}
+
+.heading {
+    @apply text-xl md:text-5xl/18 sm:text-xl font-play mt-20
+}
+
+.subheading {
+    @apply text-base md:text-4xl/8 sm:text-lg font-play text-center mb-2
+}
+
+.subsubheading {
+    @apply text-base md:text-2xl/8 sm:text-base font-play text-center mb-2
+}
+.caption {
+    @apply text-xs md:text-sm/6 sm:text-xs font-lato text-gray-500 mb-4 md:mb-10 text-center
+}
+
+.normal {
+    @apply text-sm md:text-base/8 sm:text-sm font-lato
+}

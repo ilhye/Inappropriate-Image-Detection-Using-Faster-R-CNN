@@ -1,0 +1,16 @@
+{
+  "name": "inappropriate-image-detection-using-faster-r-cnn",
+  "description": "This project aims to detect inappropriate content in images using a pre-trained Faster R-CNN model. It leverages deep learning techniques and object detection pipelines to identify explicit or sensitive elements within an image frame.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.13",
+    "tailwindcss": "^4.1.13"
+  }
+}

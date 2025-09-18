@@ -1,0 +1,120 @@
+{% extends "content_layout.html"%}  {% block content %}
+<div class="w-50 m-auto">
+  {% include "newPost.html" %}
+  <div class="card p-3 mb-4">
+    <!-- Profile -->
+    <div class="d-flex align-items-start mt-3">
+      <img
+        src="https://i.pinimg.com/736x/06/c5/34/06c53402078b109af7bb0e1b2d8bfcba.jpg"
+        alt="profile_pic"
+        class="rounded-circle me-2"
+        style="width: 40px; height: 40px; object-fit: cover"
+      />
+
+      <!-- Username and time -->
+      <div class="w-100">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <p id="username" class="mb-0 fw-semibold">#</p>
+            <small class="text-muted"> # </small>
+          </div>
+          <form method="POST" action="#">
+            <button
+              type="submit"
+              class="btn btn-danger position-absolute top-0 end-0 m-3 w-25"
+            >
+              Delete Post
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blog Content -->
+    <div class="card-body">
+      <p class="blog-status mb-2 small">
+        <span class="fw-bold">Status:</span> #
+      </p>
+      <p class="blog-category mb-2 small">
+        <span class="fw-bold">Category:</span> #
+      </p>
+      <p class="blog-description mb-2">
+        <span class="fw-bold">Description: </span> #
+      </p>
+      <div class="d-flex">
+        <p>tina</p>
+      </div>
+      <hr />
+      <ul class="list-unstyled d-flex text-center w-100 p-0 m-0 interaction">
+        <li class="flex-fill">
+          <form method="POST" action="#">
+            <button class="p-0 border-0 bg-transparent" type="submit">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-heart-icon lucide-heart"
+              >
+                <path
+                  d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"
+                />
+              </svg>
+              <i class="bi bi-heart-fill text-danger me-1"></i> Likes
+            </button>
+          </form>
+        </li>
+        <li class="flex-fill">
+          <a
+            class="text-decoration-none text-dark"
+            data-bs-toggle="collapse"
+            href="#addComment"
+            role="button"
+            aria-expanded="false"
+            aria-controls="addComment"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-message-circle-icon lucide-message-circle"
+            >
+              <path
+                d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"
+              />
+            </svg>
+            <span>Comment</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Add comment -->
+      <div class="collapse w-100" id="addComment">
+        <form method="POST" action="#">
+          <textarea
+            class="form-control"
+            placeholder="Leave a comment here"
+            rows="3"
+            name="comment"
+          ></textarea>
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

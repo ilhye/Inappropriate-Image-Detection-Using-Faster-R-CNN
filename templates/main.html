@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Content Moderation</title>
+    <link
+      href="{{ url_for('static', filename='css/output.css') }}"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+    </style>
+  </head>
+  <body>
+    <nav class="p-4 bg-indigo-500 flex justify-between font-lato fixed w-full z-10">
+      <p class="text-white">Content Moderation</p>
+      <ul class="flex justify-end gap-5 text-white">
+        <li>
+          <a href="#home">Home</a>
+        </li>
+        <li>
+          <a href="#about">About</a>
+        </li>
+        <li>
+          <a href="#how-to-use">How to use</a>
+        </li>
+        <li>
+          <a href="#try-now">Try now!</a>
+        </li>
+        <li>
+          <a href="#authors">Authors</a>
+        </li>
+      </ul>
+    </nav>
+
+    <section id="home" class="container-full flex flex-col">
+      <p class="heading text-center p-2">
+        Inappropriate Image Detection Using <br />
+        Faster R-CNN
+      </p>
+      <p class="caption p-2">
+        Strengthening Faster R-CNN against adversarial attacks to ensure
+        reliable and secure automated content moderation in <br />
+        digital platforms.
+      </p>
+
+      <a
+        href="#about"
+        class="btn bg-indigo-500 text-white hover:bg-indigo-600 m-auto mt-3"
+      >
+        LEARN MORE
+      </a>
+    </section>
+
+    <section id="about" class="container-full bg-stone-50">
+      <p class="subheading">About the Project</p>
+      <p class="normal mb-5">
+        The surge of user-generated content online has created an urgent need
+        for robust and scalable content moderation systems. Manual moderation is
+        resource-intensive, while automated solutions powered by deep learning
+        provide real-time detection and filtering of harmful content. However,
+        these systems face a rising challenge:
+        <span class="font-bold">adversarial patches</span>, also known as
+        cloaked content. Such subtle perturbations can mislead detection models,
+        allowing malicious material to bypass filters.
+       
+        <br />
+        This research explores the vulnerability of
+        <span class="font-bold">Faster R-CNN</span>, a leading object detection
+        architecture, against adversarial attacks. By integrating
+        <span class="font-bold">adversarial purification techniques</span>, the
+        study aims to cleanse and restore manipulated images before analysis,
+        improving resilience without compromising detection accuracy. The goal
+        is to establish a more secure and reliable framework for automated
+        content moderation capable of safeguarding digital platforms against
+        evolving threats.
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-10">
+        <div class="flex flex-col">
+          <img src="/static/images/fig1.png" alt="Figure 1" class="h-60" />
+          <p class="italic text-center caption">
+            Figure 1. Side by side comparison of an unglazed and glazed image.
+            The left image is the unaltered version and the glazed version on
+            the right.
+          </p>
+        </div>
+        <div class="flex flex-col justify-center">
+          <img src="/static/images/fig2.png" alt="Figure 2" />
+          <p class="italic text-center caption">
+            Figure 2. Side-by-side comparison of an unglazed (left) and glazed
+            image (right). The image on the left shows the distorted portions of
+            the image after glazing. White lines appear to have a lower opacity,
+            a decrease in the saturation, and an overall rougher text
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-to-use" class="container-full">
+      <p class="subheading">How to use?</p>
+      <p class="caption">
+        Follow these steps to upload and process your media
+      </p>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="card">
+          <p class="subsubheading">Step 1</p>
+          <p class="normal">
+            Select your file by clicking on the
+            <span class="font-bold">Submit</span>
+            button.
+          </p>
+          <img src="/static/images/step1.png" alt="Step 1" />
+        </div>
+        <div class="card">
+          <p class="subsubheading">Step 2</p>
+          <p class="normal">
+            Click the <span class="font-bold">Submit</span> button to send your
+            media.
+          </p>
+          <img src="/static/images/step2.png" alt="Step 2" />
+        </div>
+        <div class="card">
+          <p class="subsubheading">Step 3</p>
+          <p class="normal">
+            Sit back and wait a moment while we process your file and display
+            the results.
+          </p>
+          <img
+            src="/static/images/step3.png"
+            alt="Step 3"
+            class="h-64 w-full"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section id="try-now" class="container-full bg-stone-50">
+      <p class="subheading">Try it!</p>
+      <p class="caption">
+        Test the model by submitting your media
+      </p>
+      <div class="grid md:grid-cols-2 gap-10">
+        <div class="upload rounded-xl p-7 shadow-xl border-1 border-stone-600">
+          <p class="subsubheading">
+            Content Moderation
+          </p>
+
+          <!-- TODO: Display uploaded media -->
+          <form
+            method="POST"
+            enctype="multipart/form-data"
+            action="{{ url_for('routes.content_moderation') }}"
+          >
+            <div
+              class="relative border-2 border-dashed border-gray-300 m-auto p-4 rounded-xl flex flex-col items-center"
+            >
+              <div class="flex justify-center items-center">
+                {{ form.hidden_tag()}}
+
+                <!-- Upload box -->
+                <label
+                  for="file-upload"
+                  class="flex flex-col items-center justify-center w-full h-40 cursor-pointer hover:border-gray-500 transition"
+                >
+                  <!-- Icon -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-cloud-upload-icon lucide-cloud-upload h-20 w-20 text-indigo-500"
+                  >
+                    <path d="M12 13v8" />
+                    <path
+                      d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"
+                    />
+                    <path d="m8 17 4-4 4 4" />
+                  </svg>
+
+                  <!-- Upload text -->
+                  <p class="text-sm text-gray-300 font-lato">
+                    <span class="text-indigo-500">Upload a file</span> or drag
+                    and drop
+                  </p>
+                  <p class="text-xs text-gray-500 font-lato">
+                    PNG, JPG, MP4 up to 10MB
+                  </p>
+
+                  <!-- <input id="file-upload" type="file" class="hidden" /> -->
+                  {{form.uploadImg(class="hidden font-lato", id="file-upload",
+                  type="file")}}
+                </label>
+              </div>
+            </div>
+            <!-- Buttons -->
+            <div class="flex justify-end mt-4 space-x-4">
+              {{ form.submit(class="bg-indigo-500 hover:bg-indigo-600 text-white
+              font-medium px-5 py-2 rounded-lg shadow w-30") }}
+            </div>
+          </form>
+          {% with messages = get_flashed_messages() %} {% if messages %}
+          <div class="alert alert-danger mt-2">{{ messages[0] }}</div>
+          {% endif %} {% endwith %}
+        </div>
+        <div class="result rounded-xl p-7 shadow-xl border-1 border-stone-600">
+          <p class="subsubheading">Result</p>
+          <!-- TODO: Loading css -->
+          {% if media_url %}
+          <img
+            src="{{ media_url }}"
+            class="h-64 w-full"
+            alt="Detected Objects"
+          />
+          {% else %}
+          <p class="normal text-gray-500 text-center">No result yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section id="authors" class="container-full">
+      <p class="subheading">Authors</p>
+      <p class="caption">
+        Meet the team behind this study
+      </p>
+
+      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-5 mt-5">
+        <div class="card sm:col-span-1">
+          <img
+            src="https://i.pinimg.com/736x/ac/5d/d3/ac5dd3d8fb8d14cd45fa4679f9acf59a.jpg"
+            alt="Author 1"
+            class="w-40 h-40 rounded-full m-auto mt-4"
+          />
+          <p class="normal font-semibold text-center mt-2">John Doe</p>
+          <p class="caption">Data Scientist</p>
+        </div>
+        <div class="card sm:col-span-1">
+          <img
+            src="https://i.pinimg.com/736x/ac/5d/d3/ac5dd3d8fb8d14cd45fa4679f9acf59a.jpg"
+            alt="Author 1"
+            class="w-40 h-40 rounded-full m-auto mt-4"
+          />
+          <p class="normal font-semibold text-center mt-2">John Doe</p>
+          <p class="caption">Data Scientist</p>
+        </div>
+        <div class="card sm:col-span-1">
+          <img
+            src="https://i.pinimg.com/736x/ac/5d/d3/ac5dd3d8fb8d14cd45fa4679f9acf59a.jpg"
+            alt="Author 1"
+            class="w-40 h-40 rounded-full m-auto mt-4"
+          />
+          <p class="normal font-semibold text-center mt-2">John Doe</p>
+          <p class="caption">Data Scientist</p>
+        </div>
+        <div class="card sm:col-span-1">
+          <img
+            src="https://i.pinimg.com/736x/ac/5d/d3/ac5dd3d8fb8d14cd45fa4679f9acf59a.jpg"
+            alt="Author 1"
+            class="w-40 h-40 rounded-full m-auto mt-4"
+          />
+          <p class="normal font-semibold text-center mt-2">John Doe</p>
+          <p class="caption">Data Scientist</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="p-5 md:p-10 bg-indigo-500 text-white text-center font-lato">
+      <p class="text-sm/8">
+        &copy; 2025 Group 1 - Polytechnic University of the Philippines
+        <br />Developed for Research Purposes<br />Email us at
+        <span class="font-bold">thesisfasterrcnn@gmail.com</span>
+      </p>
+    </footer>
+  </body>
+</html>
