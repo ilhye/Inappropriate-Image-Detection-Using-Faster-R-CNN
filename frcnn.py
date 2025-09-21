@@ -7,8 +7,7 @@ from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 import torchvision.transforms.functional as F
 from PIL import Image, ImageDraw, ImageFont
-from cocoClass_lspd import COCO_CLASSES
-from cocoClass_vhd import COCO_CLASSES as VHD_CLASSES
+from cocoClass import COCO_CLASSES
 
 # Load default model
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -22,7 +21,7 @@ _TF = torchvision.transforms.ToTensor()
 # TODO: Restore previous code (remove fallback) once LSPD is stable
 
 # Load custom model
-def get_model(weights_path="lspd-vhd11k-trained/fasterrcnn_resnet50_epoch_3.pth", num_classes=11):
+def get_model(weights_path="updated-trained-model/fasterrcnn_resnet50_epoch_5.pth", num_classes=10):
     model = fasterrcnn_resnet50_fpn(pretrained=True)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
@@ -32,13 +31,11 @@ def get_model(weights_path="lspd-vhd11k-trained/fasterrcnn_resnet50_epoch_3.pth"
 _MODEL = get_model()
 
 # Output media with bounding boxes and their classes
-def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8, model=None, coco = COCO_CLASSES) -> Image.Image:
-    if model is None:
-        model = _MODEL
+def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
     img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE) 
 
     with torch.no_grad():
-        pred = model(img_tensor)[0]
+        pred = _MODEL(img_tensor)[0]
 
     predicted_classes = []
 
@@ -48,7 +45,7 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8, model=None, coco
             continue
         xmin, ymin, xmax, ymax = map(int, box)
 
-        class_name = coco.get(label.item(), "Unknown")
+        class_name = COCO_CLASSES.get(label.item(), "Unknown")
         predicted_classes.append(class_name)
 
         draw.rectangle([xmin, ymin, xmax, ymax], outline="blue", width=2)
@@ -61,16 +58,12 @@ def detect_image(file):
     pil_img = Image.open(file.stream).convert("RGB")
     annotated, class_names = draw_boxes(pil_img.copy())
 
-    if not any(cls in COCO_CLASSES.values() for cls in class_names):
-        weight_path = "trained-model/fasterrcnn_resnet50_epoch_5.pth"
-        fallback = get_model(weight_path, num_classes=3)
-        annotated, class_names = draw_boxes(pil_img.copy(), model=fallback, coco=VHD_CLASSES)
-
     return annotated, class_names
 
 # Video detection
 def detect_video(input_path, output_path):
     cap = cv2.VideoCapture(input_path)
+
     if not cap.isOpened():
         raise ValueError("Could not open video")
 
@@ -88,20 +81,15 @@ def detect_video(input_path, output_path):
 
         pil_frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         annotated_pil, class_names = draw_boxes(pil_frame)
-
-        if not any(cls in COCO_CLASSES.values() for cls in class_names):
-            weight_path = "trained-model/fasterrcnn_resnet50_epoch_5.pth"
-            fallback = get_model(weight_path, num_classes=3)
-            annotated_pil, class_names = draw_boxes(
-                pil_frame.copy(), model=fallback, coco=VHD_CLASSES
-            )
-
-        detections_all.extend(class_names)
-        
+        detections_all.extend(class_names)      
         annotated_cv2 = cv2.cvtColor(np.array(annotated_pil), cv2.COLOR_RGB2BGR)
-        print("erite")
+        print("write")
+
         out.write(annotated_cv2)
 
     cap.release()
     out.release()
     return output_path, detections_all
+
+# 4726 323 497
+# 1896 336 842

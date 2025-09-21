@@ -15,3 +15,7 @@ fasterrcnn_resnet50_epoch_3.pth
 trained
 NSFW_FRCNN_Detection.ipynb
 lspd-vhd11k-trained
+updated-trained-model
+vhd11k-annotation-new
+cocoClass_vhd.py
+vhd11k-dataset.v3i.coco.zip
