@@ -6,17 +6,17 @@ import numpy as np
 import os
 import sys
 
-# Import the local guided-diffusion package from the project's GuidedDiffusionPur folder
+# Import the local guided-diffusion package from the project's guided_diffusion folder
 try:
-    guided_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "GuidedDiffusionPur"))
+    guided_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "guided_diffusion"))
     sys.path.insert(0, guided_path)
-    # guided_diffusion package inside GuidedDiffusionPur
-    from GuidedDiffusionPur.guided_diffusion.script_util import model_and_diffusion_defaults, create_model_and_diffusion, args_to_dict
-    from GuidedDiffusionPur.guided_diffusion.gaussian_diffusion import _extract_into_tensor
+    # guided_diffusion package inside guided_diffusion
+    from guided_diffusion.script_util import model_and_diffusion_defaults, create_model_and_diffusion, args_to_dict
+    from  guided_diffusion.gaussian_diffusion import _extract_into_tensor
     HAVE_GUIDED = True
 except Exception:
     HAVE_GUIDED = False
-    print("guided-diffusion not available from GuidedDiffusionPur; falling back to conceptual implementation.")
+    print("guided-diffusion not available from guided_diffusion; falling back to conceptual implementation.")
 
 class DiffusionModel(nn.Module):
     """
@@ -112,124 +112,77 @@ def _to_image_space(x):
     """
     return (x + 1.0) / 2.0
 
-
-def adversarial_purification(adversarial_image, diffusion_model, num_purifystep=None, noise_timesteps=200):
+def adversarial_purification(adversarial_image, diffusion_model, num_purifystep=None):
     """
-    Purify an adversarial image using a guided-diffusion reverse process.
-
-    Args:
-        adversarial_image: Input image tensor to purify
-        diffusion_model: DiffusionModel instance  
-        num_purifystep: Number of reverse diffusion steps for purification (default: None)
-        noise_timesteps: Total noise timesteps in the diffusion process (default: 200)
-
-    Returns:
-        purified_image (torch.Tensor) in [0,1], same shape as input.
+    Purify adversarial image by running only the reverse diffusion (denoising) process.
     """
     device = diffusion_model.device
     model = diffusion_model.model
     diffusion = diffusion_model.diffusion
 
     x_orig = adversarial_image.to(device)
-    # ensure 4D
     if x_orig.dim() == 3:
         x_orig = x_orig.unsqueeze(0)
 
-    # Resize/cast if model expects different size (best-effort)
+    # resize if needed
     _, c, h, w = x_orig.shape
     if diffusion_model.image_size and (h != diffusion_model.image_size or w != diffusion_model.image_size):
         pil = Image.fromarray((x_orig.squeeze(0).permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
         pil = pil.resize((diffusion_model.image_size, diffusion_model.image_size), Image.BILINEAR)
         x_orig = ToTensor()(pil).unsqueeze(0).to(device)
 
-    # convert to model input range
+    # convert to [-1,1]
     x_model = _to_model_space(x_orig)
 
     if HAVE_GUIDED and diffusion is not None:
         try:
-            # Determine max timestep from diffusion if available
-            num_timesteps = getattr(diffusion, "num_timesteps", noise_timesteps)
-            t_T = num_timesteps - 1
-
-            # make timestep tensor
-            t = torch.full((x_model.shape[0],), t_T, dtype=torch.long, device=device)
-
-            # add noise at timestep T using q_sample if available
-            if hasattr(diffusion, "q_sample"):
-                noise = torch.randn_like(x_model)
-                x_T = diffusion.q_sample(x_model, t, noise=noise)
-            else:
-                # fallback: add Gaussian noise
-                x_T = x_model + torch.randn_like(x_model) * 0.1
-
-            # try to use p_sample_loop and supply init image if supported by local version
-            if hasattr(diffusion, "p_sample_loop"):
-                try:
-                    # Calculate number of purification steps
-                    steps = num_purifystep or min(50, num_timesteps)
-                    # many guided-diffusion forks accept an 'init_image' or 'init_x' keyword
-                    purified_model_space = diffusion.p_sample_loop(
-                        model,
-                        (x_T.shape[0], x_T.shape[1], x_T.shape[2], x_T.shape[3]),
-                        num_purifysteps=steps,
-                        init_image=x_T,
-                        clip_denoised=True,
-                    )
-                except TypeError:
-                    # try without init_image; some implementations always start from noise
-                    steps = num_purifystep or min(50, num_timesteps)
-                    purified_model_space = diffusion.p_sample_loop(
-                        model,
-                        (x_T.shape[0], x_T.shape[1], x_T.shape[2], x_T.shape[3]),
-                        num_purifysteps=steps,
-                        clip_denoised=True,
-                    )
-                    # if this started from pure noise instead of x_T, we fall back to iterative method below
-            else:
-                # iterative denoising using available model API: conservative approach
-                purified_model_space = x_T.clone()
-                # choose a reduced number of steps to be faster/safe
-                steps = num_purifystep or min(200, num_timesteps)
-                for timestep in reversed(range(num_timesteps - 1, num_timesteps - steps - 1, -1)):
-                    t_tensor = torch.full((x_T.shape[0],), timestep, dtype=torch.long, device=device)
-                    with torch.no_grad():
-                        model_out = model(purified_model_space, t_tensor)
-                    # use a small step size to avoid collapse; this is a heuristic fallback
-                    purified_model_space = purified_model_space - model_out * (1.0 / max(1, steps / 10.0))
-
-            # convert back to image space [0,1]
+            steps = num_purifystep or 50
+            # Try direct loop using init image (pure reverse)
+            purified_model_space = diffusion.p_sample_loop(
+                model,
+                x_model.shape,
+                clip_denoised=True,
+                init_image=x_model,       # <--- directly start from the adversarial image
+                num_purifysteps=steps     # some forks accept this argument
+            )
             purified = _to_image_space(purified_model_space).clamp(0.0, 1.0)
+            print("Purifying")
             return purified.cpu()
-        except Exception as e:
-            print(f"Guided purification failed ({e}), falling back to conceptual loop.")
+        except TypeError:
+            # fallback: manual denoising loop
+            purified = x_model.clone()
+            steps = num_purifystep or 50
+            for t in reversed(range(steps)):
+                t_tensor = torch.full((purified.shape[0],), t, dtype=torch.long, device=device)
+                with torch.no_grad():
+                    noise_pred = model(purified, t_tensor)
+                # update rule: subtract predicted noise
+                purified = purified - 0.1 * noise_pred
+                purified = purified.clamp(-1.0, 1.0)
 
-    # Fallback denoising loop if guided-diffusion unavailable or failed
-    purified = x_model.clone()
-    steps = num_purifystep or 50
-    for t in range(steps, 0, -1):
-        t_tensor = torch.full((purified.shape[0],), t, dtype=torch.long, device=device)
-        with torch.no_grad():
-            noise_pred = diffusion_model(purified, t_tensor)
-        # small-step update (heuristic)
-        purified = purified - noise_pred * 0.01
-        purified = torch.clamp(purified, -1.0, 1.0)
+            purified = _to_image_space(purified).clamp(0.0, 1.0)
+            return purified.cpu()
 
-    purified = _to_image_space(purified).clamp(0.0, 1.0)
-    return purified.cpu()
+    # Fallback dummy
+    return x_orig.cpu()
 
+def load_image_as_tensor(path):
+    pil = Image.open(path).convert("RGB")
+    tensor = ToTensor()(pil).unsqueeze(0)  # [1,C,H,W] in [0,1]
+    return tensor
 
-def main():
+def main(image_path):
     # Testing dummy adversarial image, anti-alias, and purify using local guided-diffusion package.
-    print("Creating a dummy adversarial image (28x28 RGB) ...")
-    dummy_image = np.random.rand(28, 28, 3) * 0.1 + 0.5
-    dummy_image = np.clip(dummy_image, 0, 1)
-    adversarial_image_tensor = ToTensor()(Image.fromarray((dummy_image * 255).astype(np.uint8))).unsqueeze(0)
+    # print("Creating a dummy adversarial image (28x28 RGB) ...")
+    # dummy_image = np.random.rand(28, 28, 3) * 0.1 + 0.5
+    # dummy_image = np.clip(dummy_image, 0, 1)
 
-    # locate a reasonable checkpoint inside the GuidedDiffusionPur folder
-    default_ckpt = os.path.join(os.path.dirname(__file__), "..", "GuidedDiffusionPur", "models", "256x256_diffusion.pt")
-    default_ckpt = os.path.abspath(default_ckpt)
+    adversarial_image_tensor = load_image_as_tensor(image_path)
+
+    # locate checkpoint
+    default_ckpt = os.path.join(os.path.dirname(__file__), "..", "guided_diffusion", "models", "256x256_diffusion.pt")
     if not os.path.exists(default_ckpt):
-        default_ckpt = None
+        raise FileNotFoundError("Pretrained diffusion checkpoint not found at " + default_ckpt)
 
     diffusion_model = DiffusionModel(model_path=default_ckpt, image_size=256)
 

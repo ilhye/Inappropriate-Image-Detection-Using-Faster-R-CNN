@@ -4,4 +4,7 @@ torch
 torchvision
 pillow
 werkzeug
-roboflow
+scipy
+xformers
+numpy
+opencv-python

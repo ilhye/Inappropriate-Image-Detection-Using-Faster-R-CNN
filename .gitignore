@@ -19,4 +19,7 @@ NSFW_FRCNN_Detection.ipynb
 lspd-vhd11k-trained
 updated-trained-model
 vhd11k-dataset.v3i.coco.zip
-GuidedDiffusionPur
+models/fasterrcnn_resnet50_epoch_5.pth
+real_esrgan/weights/RealESRGAN_x4plus.pth
+guided_diffusion/models/256x256_diffusion_uncond.pt
+test_esrgan.py

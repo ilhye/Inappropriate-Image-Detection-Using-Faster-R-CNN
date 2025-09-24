@@ -1,3 +1,4 @@
+from gradio_client import file
 import torch
 import torchvision
 import cv2
@@ -16,8 +17,12 @@ _WEIGHTS = torchvision.models.detection.FasterRCNN_ResNet50_FPN_Weights.DEFAULT
 _COCO_MODEL = fasterrcnn_resnet50_fpn(weights=_WEIGHTS).to(DEVICE).eval()
 _TF = torchvision.transforms.ToTensor()
 
-# Load custom model
-def get_model(weights_path="trained-model/fasterrcnn_resnet50_epoch_5.pth", num_classes=3):
+def get_model(weights_path="models/fasterrcnn_resnet50_epoch_5.pth", num_classes=11):
+    """ Load custom classes
+    Args:
+        weigth_path (str): Path to model weights
+        num_classes (int): Number of classes including background or 0 index
+    """
     model = fasterrcnn_resnet50_fpn(pretrained=True)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
@@ -26,8 +31,12 @@ def get_model(weights_path="trained-model/fasterrcnn_resnet50_epoch_5.pth", num_
 
 _MODEL = get_model()
 
-# Output media with bounding boxes and their classes
-def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
+def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.4) -> Image.Image:
+    """ Output media with bounding boxes and their classes
+    Args:
+        pil_img (PIL.Image): Input image from the routes.py
+        score_thresh (float): Threshold to filter boxes based on confidence score
+    """
     img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE) 
 
     with torch.no_grad():
@@ -35,7 +44,11 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
 
     predicted_classes = []
 
+    print("Raw labels:", pred["labels"].tolist())
+    print("Raw scores:", pred["scores"].tolist())
+
     draw = ImageDraw.Draw(pil_img)
+
     for box, label, score in zip(pred["boxes"], pred["labels"], pred["scores"]):
         if score < score_thresh:
             continue
@@ -51,12 +64,38 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
 
 # Image detection
 def detect_image(file):
-    pil_img = Image.open(file.stream).convert("RGB")
+    """Detect objects in an image 
+    Args: 
+        file: FileStorage (Flask) object, file-like object, string path, or PIL Image. 
+                    This is automatically handled by routes
+    
+    Returns:
+        annotated (PIL.Image): Image with bounding boxes drawn
+        class_names (list): List of detected class names
+    """
+    if isinstance(file, Image.Image):
+        pil_img = file.convert("RGB")
+    elif hasattr(file, 'stream'):
+        pil_img = Image.open(file.stream).convert("RGB")
+    elif isinstance(file, str):
+        pil_img = Image.open(file).convert("RGB")
+    else:
+        pil_img = Image.open(file).convert("RGB")
+
     annotated, class_names = draw_boxes(pil_img.copy())
     return annotated, class_names
 
 # Video detection
 def detect_video(input_path, output_path):
+    """ Detect object in a video
+    Args:
+        input_path (str): Path to input video
+        output_path (str): Path to save output video
+    
+    Returns:
+        output_path (str): Path to saved output video
+        detections_all (list): List of all detected class names in the video
+    """
     cap = cv2.VideoCapture(input_path)
     if not cap.isOpened():
         raise ValueError("Could not open video")

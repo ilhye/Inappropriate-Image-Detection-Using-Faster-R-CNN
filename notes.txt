@@ -38,12 +38,13 @@ FOR TESTING AND VALIDATION
 - upload _annotations.coco.json files inside every folder of the dataset segmentation
 - run validation/ testing part
 
+
+Links
 - https://ravjot03.medium.com/detecting-vehicles-in-videos-with-faster-r-cnn-a-step-by-step-guide-932bbabf978b
+- https://github.com/XPixelGroup/BasicSR
+- https://github.com/xinntao/Real-ESRGAN/blob/master/realesrgan/archs/discriminator_arch.py (orig)
+- https://github.com/ai-forever/Real-ESRGAN
 
-PLAN--
-- Navbar: 
-    User - Newsfeed, Profile, Notification, Report Contents, Account, Help/Guidelines, Logout
-    Admin - Dashboard, Review Queue, Flagged Post, Users, Audit log, Logout
 
-npm i
-npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch
+
+
