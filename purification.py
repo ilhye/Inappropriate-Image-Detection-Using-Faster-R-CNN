@@ -8,17 +8,30 @@ import numpy as np
 import os
 import sys
 
-# Import the local guided-diffusion package from the project's guided_diffusion folder
+# --- Replace the old guided_diffusion import block with a focused import of the repo purifier ---
+# Try to import the actual GuidedDiffusionPur purification implementation (diff_purify)
+# from the local GuidedDiffusionPur/purification folder. This avoids forcing the
+# guided_diffusion package import used for model construction.
+_guided_repo = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "GuidedDiffusionPur"))
+if _guided_repo not in sys.path:
+    sys.path.insert(0, _guided_repo)
+
+HAVE_GD_PURIFY = False
 try:
-    guided_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "guided_diffusion"))
-    sys.path.insert(0, guided_path)
-    # guided_diffusion package inside guided_diffusion
-    from guided_diffusion.script_util import model_and_diffusion_defaults, create_model_and_diffusion, args_to_dict
-    from  guided_diffusion.gaussian_diffusion import _extract_into_tensor
-    HAVE_GUIDED = True
-except Exception:
-    HAVE_GUIDED = False
-    print("guided-diffusion not available from guided_diffusion; falling back to conceptual implementation.")
+    # the repo's purification routine (the code you inspected)
+    from purification.diff_purify import diff_purify
+    # helpers used by the purify routine
+    from pytorch_diffusion.diffusion import Diffusion as GD_Diffusion  # optional, may be used elsewhere
+    from utils import raw_to_diff, diff_to_raw
+    HAVE_GD_PURIFY = True
+    print("Using GuidedDiffusionPur.diff_purify from GuidedDiffusionPur/purification")
+except Exception as _e:
+    HAVE_GD_PURIFY = False
+    diff_purify = None
+    GD_Diffusion = None
+    # keep original guided-diffusion import fallback if you still want it below
+    # Note: we deliberately do not import guided_diffusion.script_util here to avoid the
+    # previous behavior you wanted to avoid.
 
 class DiffusionModel(nn.Module):
     """
@@ -139,6 +152,26 @@ def adversarial_purification(adversarial_image, diffusion_model, num_purifystep=
         pil = pil.resize((diffusion_model.image_size, diffusion_model.image_size), Image.BILINEAR)
         x_orig = ToTensor()(pil).unsqueeze(0).to(device)
 
+    # Prefer the repo's diff_purify implementation if available
+    if HAVE_GD_PURIFY and diff_purify is not None and diffusion is not None:
+        try:
+            # prepare max_iter from caller or default config
+            max_iter = int(num_purifystep) if num_purifystep is not None else getattr(diffusion_model, "purify_steps", getattr(diffusion_model, "config", None) and getattr(diffusion_model.config.purification, "max_iter", 1) or 1)
+            # diff_purify expects raw->diff transforms internally; pass model's diffusion and config
+            cfg = getattr(diffusion_model, "config", None)
+            # call diff_purify(x, diffusion, max_iter, mode, config) as in repo
+            images = diff_purify(x_orig, diffusion, max_iter, mode="purification", config=cfg)
+            # diff_purify returns a list of purified images (per iteration); take last if list
+            if isinstance(images, (list, tuple)) and len(images) > 0:
+                out = images[-1]
+                return out.detach().cpu()
+            # if it returned a single tensor
+            if torch.is_tensor(images):
+                return images.detach().cpu()
+        except Exception as e:
+            print("diff_purify failed, falling back to local guided-diffusion:", e)
+
+    # Fallback: existing guided-diffusion or conceptual implementation (unchanged)
     # convert to [-1,1]
     x_model = _to_model_space(x_orig)
 
