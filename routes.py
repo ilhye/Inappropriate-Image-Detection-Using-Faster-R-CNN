@@ -11,7 +11,7 @@ from PIL import Image
 from torchvision.transforms import ToTensor, ToPILImage
 from cocoClass import COCO_CLASSES
 from frcnn import detect_image, detect_video
-from purification import adversarial_anti_aliasing, adversarial_purification, DiffusionModel
+from purification import adversarial_purification, purification_check, DiffusionModel
 from realesrgan_wrapper import load_model as esrgan_load_model, run_sr as esrgan_run_sr
 
 bp = Blueprint("routes", __name__)
@@ -23,7 +23,7 @@ os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-_diffusion_model = DiffusionModel(model_path="guided_diffusion/models/256x256_diffusion.pt", image_size=256)
+_diffusion_model = DiffusionModel(model_path="guided_diffusion\models\256x256_diffusion_uncond.pt", image_size=256)
 _esrgan_model = esrgan_load_model(device=DEVICE)
 
 # Flask form
@@ -35,18 +35,18 @@ class CreatePost(FlaskForm):
     )
     submit = SubmitField("Submit")
 
-def run_purification(image_pil: Image.Image) -> Image.Image:
-    """Guided diffusion purification 
-    Args:
-        image_pil (PIL.Image): Input image
-        
-    Returns:
-        PIL.Image: Purified image
-    """
+def run_purification(image_pil: Image.Image, diffusion_model: DiffusionModel):
+    """Guided diffusion purification + quality check"""
     img_t = ToTensor()(image_pil).unsqueeze(0).to(DEVICE)
-    aa = adversarial_anti_aliasing(img_t, sigma=1.0)
-    purified_t = adversarial_purification(aa, _diffusion_model)
-    return ToPILImage()(purified_t.squeeze(0))
+
+    # Step 1: Purify (no anti-aliasing)
+    purified_t = adversarial_purification(img_t, diffusion_model)
+
+    # Step 2: Quality check
+    purified_checked, ok, score = purification_check(img_t, purified_t)
+
+    return ToPILImage()(purified_checked.squeeze(0)), ok, score
+
 
 def run_realesrgan(image_pil: Image.Image) -> Image.Image:
     """Use Real-ESRGAN for super-resolution
@@ -68,6 +68,7 @@ def content_moderation():
     """
     form = CreatePost()
     media_url = None
+    message = ""
 
     if request.method == "POST" and form.validate_on_submit():
         file = request.files.get("uploadImg")
@@ -82,12 +83,20 @@ def content_moderation():
             pil = Image.open(upload_path).convert("RGB")
 
             print("enter pur")
-            purified = run_purification(pil)
+            message = "Processing..."
+            purified, ok, score = run_purification(pil, _diffusion_model)
+            message = "Purification done"
+
             print("enter esrgan")
+            message = "Enhancing image..."
             enhanced = run_realesrgan(purified)
+
             print("enter drcnn")
+            message = "Detecting objects..."
             result_img, class_names = detect_image(enhanced) 
+            message = ""
             print("exity frcnn")
+            
             result_img.save(annot_path)
             media_url = url_for("static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
@@ -102,8 +111,10 @@ def content_moderation():
         elif ext in [".mp4", ".avi", ".mov"]:
             # TODO: similar frame-wise pipeline (purify -> resshift -> detection)
             # TODO: capable si esrgan on video resolution
+            # Video pipeline
             result_vid, class_names = detect_video(upload_path, annot_path)
             media_url = url_for("static", filename=f"annotated/pred_{filename}")
-            print("Detected:", class_names)
+            print("Detected classes:", class_names)
 
-    return render_template("main.html", form=form, media_url=media_url)
+
+    return render_template("main.html", form=form, media_url=media_url, message=message)
