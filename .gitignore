@@ -1,25 +1,26 @@
+# Virtual environment
 venv
+
+# Environment variables
 .env
+
+# Python cache
 __pycache__
-violence-detection-4
-trained-model
+
+# Node modules
+node_modules
+
+# Model weights
+models/fasterrcnn_resnet50_epoch_5.pth
+models/weights/RealESRGAN_x4plus.pth
+
+# Images
 annotated
 uploads
-node_modules
-model-testing.txt
-Faster_R_CNN_violence_detection_copy.ipynb
-vhd11k annotation
-LSPD_trained_model
-test.py
-LSPD_trained_models
-fasterrcnn_resnet50_epoch_3.pth
-vhd11k-trained-model
-vhd11k-annotation-new
-NSFW_FRCNN_Detection.ipynb
-lspd-vhd11k-trained
-updated-trained-model
-vhd11k-dataset.v3i.coco.zip
-models/fasterrcnn_resnet50_epoch_5.pth
-real_esrgan/weights/RealESRGAN_x4plus.pth
-guided_diffusion/models/256x256_diffusion_uncond.pt
+
+# Test files
 test_esrgan.py
+test.py
+guided_diffusion
+guided_diffusion copy
+real_esrgan copy

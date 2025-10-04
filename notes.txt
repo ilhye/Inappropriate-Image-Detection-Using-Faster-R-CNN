@@ -31,7 +31,7 @@ FOLDERS:
 - static: includes images, css, javascript
 - pages: pages that users can see
 - auth: authentication
-
+cccccccccc
 FOR TESTING AND VALIDATION
 - google colab removes files after run time is finish, make sure to reupload the epoch 5 to avoid re-running the training section
 - run load dataset section
@@ -44,6 +44,8 @@ Links
 - https://github.com/XPixelGroup/BasicSR
 - https://github.com/xinntao/Real-ESRGAN/blob/master/realesrgan/archs/discriminator_arch.py (orig)
 - https://github.com/ai-forever/Real-ESRGAN
+- https://www.reddit.com/r/StableDiffusion/comments/120fd60/16line_python_code_for_removing_adversarial_noise/
+
 
 
 
