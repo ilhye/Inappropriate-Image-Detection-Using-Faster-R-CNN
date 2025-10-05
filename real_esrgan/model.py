@@ -3,7 +3,6 @@ import torch
 from torch.nn import functional as F
 from PIL import Image
 import numpy as np
-import cv2
 from huggingface_hub import hf_hub_url, hf_hub_download
 
 from .rrdbnet_arch import RRDBNet
@@ -55,35 +54,49 @@ class RealESRGAN:
         self.model.eval()
         self.model.to(self.device)
         
-    @torch.amp.autocast(device_type='cuda' if torch.cuda.is_available() else 'cpu')
+    # @torch.amp.autocast(device_type='cuda' if torch.cuda.is_available() else 'cpu')
     def predict(self, lr_image, batch_size=4, patches_size=192,
                 padding=24, pad_size=15):
+        torch.set_num_threads(8)
+
         scale = self.scale
         device = self.device
+
+        print("Enter predict")
         lr_image = np.array(lr_image)
         lr_image = pad_reflect(lr_image, pad_size)
 
+        print("Split into patches")
         patches, p_shape = split_image_into_overlapping_patches(
             lr_image, patch_size=patches_size, padding_size=padding
         )
-        img = torch.FloatTensor(patches/255).permute((0,3,1,2)).to(device).detach()
+        print("Convert patches to tensor")
+        img = torch.FloatTensor(patches/255).permute((0,3,1,2)).to(device)
 
-        with torch.no_grad():
-            res = self.model(img[0:batch_size])
-            for i in range(batch_size, img.shape[0], batch_size):
+        print("Process in batches")
+        with torch.no_grad(): 
+            print("Processing patches")
+            res = self.model(img[0:batch_size]) 
+            print("Reshape")
+            for i in range(batch_size, img.shape[0], batch_size): 
+                print("Process patch")
                 res = torch.cat((res, self.model(img[i:i+batch_size])), 0)
 
-        sr_image = res.permute((0,2,3,1)).clamp_(0, 1).cpu()
-        np_sr_image = sr_image.numpy()
+        print("Convert to image")
+        sr_image = res.permute((0,2,3,1)).clamp_(0, 1).cpu().numpy()
 
+        print("Stitch together")
         padded_size_scaled = tuple(np.multiply(p_shape[0:2], scale)) + (3,)
         scaled_image_shape = tuple(np.multiply(lr_image.shape[0:2], scale)) + (3,)
-        np_sr_image = stich_together(
-            np_sr_image, padded_image_shape=padded_size_scaled, 
+        sr_image = stich_together(
+            sr_image, padded_image_shape=padded_size_scaled, 
             target_shape=scaled_image_shape, padding_size=padding * scale
         )
-        sr_img = (np_sr_image*255).astype(np.uint8)
-        sr_img = unpad_image(sr_img, pad_size*scale)
+
+        print("Unpad image")
+        sr_img = unpad_image(sr_image, pad_size * scale)
+        sr_img = (sr_img * 255).astype(np.uint8)
         sr_img = Image.fromarray(sr_img)
 
+        print("Predict finished")
         return sr_img

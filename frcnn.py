@@ -8,7 +8,7 @@ import torchvision.transforms.functional as F
 from PIL import Image, ImageDraw, ImageFont
 from cocoClass import COCO_CLASSES
 from purify.purification import Purifier
-from purify.real_esrgan import RealESRGANWrapper
+from purify.realesrgan import RealESRGANWrapper
 
 # Load default model
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -126,7 +126,7 @@ def detect_video(input_path, output_path):
 
             # Draw detection boxes
             print("Detecting objects...")
-            annotated_pil, class_names = draw_boxes(sr_frame)
+            annotated_pil, class_names = draw_boxes(pil_frame)
             print("Detection done.")
             detections_all.extend(class_names)
 
@@ -138,7 +138,7 @@ def detect_video(input_path, output_path):
             # Write frame
             out.write(annotated_cv2)
         
-        print(f"frame: {frame_idx}")
+        # print(f"frame: {frame_idx}")
         frame_idx += 1
 
     # Release resources

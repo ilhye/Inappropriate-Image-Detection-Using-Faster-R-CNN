@@ -14,7 +14,8 @@ from cocoClass import COCO_CLASSES
 from frcnn import detect_image, detect_video
 # from realesrgan_wrapper import load_model as esrgan_load_model, run_sr as esrgan_run_sr
 from purify.purification import Purifier
-from purify.real_esrgan import RealESRGANWrapper
+from purify.realesrgan import RealESRGANWrapper
+# from purify.test_purify import AdversarialPatchPurifier
 
 bp = Blueprint("routes", __name__)
 
@@ -77,6 +78,7 @@ def content_moderation():
 
             print("Starting advanced purification...")
             processed_pil = Purifier.process(pil)
+            # img_test = AdversarialPatchPurifier.main(pil)
 
             print("Starting super-resolution...")
             enhanced = RealESRGANWrapper.enhance(processed_pil)

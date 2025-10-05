@@ -12,7 +12,8 @@ node_modules
 
 # Model weights
 models/fasterrcnn_resnet50_epoch_5.pth
-models/weights/RealESRGAN_x4plus.pth
+models/RealESRGAN_x4plus.pth
+models/RealESRGAN_x2.pth
 
 # Images
 annotated
@@ -24,3 +25,5 @@ test.py
 guided_diffusion
 guided_diffusion copy
 real_esrgan copy
+test_purify.py
+run.py
