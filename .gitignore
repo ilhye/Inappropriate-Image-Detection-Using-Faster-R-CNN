@@ -12,7 +12,7 @@ node_modules
 
 # Model weights
 models/fasterrcnn_resnet50_epoch_5.pth
-models/RealESRGAN_x4plus.pth
+models/RealESRGAN_x4.pth
 models/RealESRGAN_x2.pth
 
 # Images

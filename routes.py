@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import torch
+import cv2
 
 from flask import Blueprint, render_template, request, url_for
 from flask_wtf import FlaskForm
@@ -9,7 +10,7 @@ from wtforms import SubmitField
 from werkzeug.utils import secure_filename
 from PIL import Image
 from torchvision.transforms import ToTensor, ToPILImage
-
+from utils import convert_to_np  
 from cocoClass import COCO_CLASSES
 from frcnn import detect_image, detect_video
 # from realesrgan_wrapper import load_model as esrgan_load_model, run_sr as esrgan_run_sr
@@ -42,6 +43,7 @@ class CreatePost(FlaskForm):
             FileAllowed(["jpg", "jpeg", "png", "mp4", "avi", "mov"], "Images/Videos only"),
         ],
     )
+    reset = SubmitField("Reset")
     submit = SubmitField("Submit")
 
 # -----------------------------
@@ -58,6 +60,10 @@ def content_moderation():
     form = CreatePost()
     media_url = None
     message = ""
+    # read button text from either query string or POST form data
+    # request.values merges args and form so it covers both GET and POST
+    text = request.values.get('button_text')
+    print(f"Button text: {text}")
 
     if request.method == "POST" and form.validate_on_submit():
         file = request.files.get("uploadImg")
@@ -81,6 +87,10 @@ def content_moderation():
 
             print("Starting super-resolution...")
             enhanced = RealESRGANWrapper.enhance(processed_pil)
+            # enhanced = np.array(enhanced)
+            # h, w = enhanced.shape[:2]
+            # enhanced_resized = cv2.resize(enhanced, (w, h), interpolation=cv2.INTER_CUBIC)
+            # enhanced_resized = cv2.cvtColor(enhanced_resized, cv2.COLOR_BGR2RGB)
 
             print("Starting object detection...")
             result_img, class_names = detect_image(enhanced) 
@@ -92,7 +102,10 @@ def content_moderation():
 
             if any(name in COCO_CLASSES.values() for name in class_names):
                 print("NSFW content detected:", class_names)
+                message = f"Contains NSFW content: {', '.join(class_names)}\n"
                 os.remove(upload_path)
+            else:
+                message = "Safe content detected."
 
         # ---------- VIDEO PROCESSING ----------
         elif ext in [".mp4", ".avi", ".mov"]:
@@ -101,7 +114,10 @@ def content_moderation():
 
             if any(name in COCO_CLASSES.values() for name in class_names):
                 print("NSFW content detected:", class_names)
+                message = f"Contains NSFW content: {', '.join(class_names)}\n"
                 os.remove(upload_path)
+            else:
+                message = "Safe content detected."
                 
             print("Detected classes:", class_names)
 

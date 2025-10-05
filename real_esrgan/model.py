@@ -26,7 +26,7 @@ HF_MODELS = {
 }
 
 class RealESRGAN:
-    def __init__(self, device, scale=4):
+    def __init__(self, device, scale=2):
         self.device = device
         self.scale = scale
         self.model = RRDBNet(
