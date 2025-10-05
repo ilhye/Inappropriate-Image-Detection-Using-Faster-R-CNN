@@ -14,9 +14,8 @@
       </div>
     </div>
     <form method="POST" novalidate class="mt-3" enctype="multipart/form-data">
-      {{ form.hidden_tag() }} {{ form.description(class="form-control mb-3" +("
-      is-invalid" if form.description.errors else ""), id="description",
-      placeholder="Enter description")}}
+  {{ form.hidden_tag() }}
+  {{ form.description(class=("form-control mb-3" + (" is-invalid" if form.description.errors else "")), id="description", placeholder="Enter description") }}
       <div class="d-flex justify-content-end align-items-end">
         <label
           for="upload"
@@ -45,8 +44,7 @@
             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
           </svg>
 
-          {{ form.uploadImg(class="form-control mb-4 d-none" + (" is-invalid" if
-          form.uploadImg.errors else ""), id="upload") }}
+          {{ form.uploadImg(class=("form-control mb-4 d-none" + (" is-invalid" if form.uploadImg.errors else "")), id="upload") }}
           <span>Choose a file</span>
         </label>
       </div>

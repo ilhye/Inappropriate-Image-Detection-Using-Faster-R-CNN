@@ -1,1 +1,10 @@
-COCO_CLASSES = {0: "violence-no_violence", 1: "non_violence", 2: "violence"}
+COCO_CLASSES = { 1: "breast",
+    2: "anus",
+    3: "female_genital",
+    4: "male_genital",
+    5: "alcohol",
+    6: "blood",
+    7: "cigarette",
+    8: "gun",
+    9: "insulting_gesture",
+    10: "knife" }

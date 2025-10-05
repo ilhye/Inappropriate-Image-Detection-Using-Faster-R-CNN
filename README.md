@@ -29,10 +29,12 @@ This project aims to detect inappropriate content in images using a pre-trained 
 3. Install required dependencies
     ```bash
     pip install -r requirements.txt
+4. Install node modules
+    ```bash
+    npm install
 4. Run the application
     ```bash
     python main.py
-
 ## Training
 * To train Faster R-CNN on a custom dataset:
     ```bash

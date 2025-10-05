@@ -1,7 +1,32 @@
+# Web framework
 flask
 flask-wtf
+
+# Machine Learning
 torch
 torchvision
 pillow
+opencv-contrib-python
+tensorflow
+numpy
+scipy
+
+# Environment variables
+python-dotenv
+
+# File handling
 werkzeug
-roboflow
+
+# Diffusion 
+tqdm
+blobfile
+xformers
+
+# Hugging Face
+huggingface_hub
+
+# For performance
+accelerate
+
+# Image processing
+scikit-image
