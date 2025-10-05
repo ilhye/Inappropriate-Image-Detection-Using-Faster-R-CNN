@@ -78,7 +78,6 @@ def content_moderation():
 
             print("Starting advanced purification...")
             processed_pil = Purifier.process(pil)
-            # img_test = AdversarialPatchPurifier.main(pil)
 
             print("Starting super-resolution...")
             enhanced = RealESRGANWrapper.enhance(processed_pil)
@@ -91,7 +90,7 @@ def content_moderation():
             media_url = url_for("static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
 
-            if class_names in COCO_CLASSES.values():
+            if any(name in COCO_CLASSES.values() for name in class_names):
                 print("NSFW content detected:", class_names)
                 os.remove(upload_path)
 
@@ -100,7 +99,7 @@ def content_moderation():
             result_vid, class_names = detect_video(upload_path, annot_path)
             media_url = url_for("static", filename=f"annotated/pred_{filename}")
 
-            if class_names in COCO_CLASSES.values():
+            if any(name in COCO_CLASSES.values() for name in class_names):
                 print("NSFW content detected:", class_names)
                 os.remove(upload_path)
                 
