@@ -60,7 +60,7 @@ def decision(classes, answer, detection_score):
     is_art = answer[0].lower() == "yes" if answer else False
     print("Answer", answer)
     if is_art: # Handles art context
-        harmful_indicators = sum(1 for ans in answer[1:9] if ans.lower() == "yes")
+        harmful_indicators = sum(1 for ans in answer[1:10] if ans.lower() == "yes")
         print("Harmful:", harmful_indicators)
         if harmful_indicators >= 2 and any(name in COCO_CLASSES.values() for name in classes):
             return 1.0 # Flag as inappropriate if more than 2 COCO classes detected
@@ -69,7 +69,7 @@ def decision(classes, answer, detection_score):
         else:
              return 0.0 # Safe
     else: # Handles non-art context
-        harmful_indicators = sum(1 for ans in answer[1:9] if ans.lower() == "yes") # Count yes answers from q3 to q12
+        harmful_indicators = sum(1 for ans in answer[1:10] if ans.lower() == "yes") # Count yes answers from q3 to q12
         harmful_score = min(1.0, 0.5 + (harmful_indicators * 0.1))
 
         # Faster R-CNN score and if relevant COCO classes found, boost by 0.2

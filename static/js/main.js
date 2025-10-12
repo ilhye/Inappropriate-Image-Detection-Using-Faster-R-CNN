@@ -1,13 +1,16 @@
+const fileUpload = document.getElementById('file-upload');
+
 // Preview uploaded image
 function showPreview(event) {
-    const previewImg = $('#preview-image');
-    const uploadLabel = $('#upload-label');
-    const resultImg = $('#result-image');
-    
+    const previewImg = document.getElementById('preview-image');
+    const uploadLabel = document.getElementById('upload-label');
+    const uploadIcon = document.getElementById('upload-icon');
+    const resultImg = document.getElementById('result-image');
 
     // Clear previous result image if any
-    if (resultImg.length) {
-        resultImg.attr('src', '#').addClass('hidden');
+    if (resultImg) {
+        resultImg.src = '#';
+        resultImg.classList.add('hidden');
     }
 
     const file = event.target.files[0];
@@ -15,38 +18,73 @@ function showPreview(event) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            previewImg.attr('src', e.target.result).removeClass('hidden');
-            uploadLabel.addClass('hidden');
+            previewImg.src = e.target.result;
+            previewImg.classList.remove('hidden');
+            uploadLabel.classList.add('hidden');
+            uploadIcon.classList.add('hidden');
         };
         reader.readAsDataURL(file);
     } else {
-        previewImg.addClass('hidden');
+        previewImg.classList.add('hidden');
+        uploadLabel.classList.remove('hidden');
+        uploadIcon.classList.remove('hidden');
     }
 }
 
 // Clear inputs, hide preview and spinner, restore upload label
 function resetForm() {
-    const form = $('form')[0];
+    const fileUpload = document.getElementById('file-upload');
+    const previewImg = document.getElementById('preview-image');
+    const resultImg = document.getElementById('result-image');
+    const message = document.getElementById('server-message');
+    const uploadIcon = document.getElementById('upload-icon');
+    const spinner = document.getElementById('spinner');
+    const uploadLabel = document.getElementById('upload-label');
+
+    const form = document.querySelector('form');
     if (!form) return;
 
     // Clear file input
-    const fileInput = $('#file-upload');
-    fileInput.val('');
+    if (fileUpload) {
+        fileUpload.value = '';
+    }
 
     // Hide preview and clear src
-    const previewImg = $('#preview-image');
-    previewImg.addClass('hidden').attr('src', '#');
+    if (previewImg) {
+        previewImg.classList.add('hidden');
+        previewImg.src = '#';
+    }
+    
+    // Reset upload label and icon
+    if (uploadLabel) {
+        uploadLabel.classList.remove('hidden');
+    }
+    if (uploadIcon) {
+        uploadIcon.classList.remove('hidden');
+    }
 
-    // Show upload label
-    $('#upload-label').removeClass('hidden');
+    // Reset result image
+    if (resultImg) {
+        resultImg.src = '#';
+        resultImg.classList.add('hidden');
+    }
+
+    // Reset message
+    if (message) {
+        message.textContent = "Results will appear here after analysis";
+    }
 
     // Hide spinner
-    $('#spinner').addClass('hidden');
-
+    if (spinner) {
+        spinner.classList.add('hidden');
+    }
 }
 
 // Ensure file input change uses showPreview
-$('#file-upload').off('change').on('change', showPreview);
+if (fileUpload) {
+    fileUpload.removeEventListener('change', showPreview); // Remove existing if any
+    fileUpload.addEventListener('change', showPreview);
+}
 
 // Ajax for page reloading
 // Immediately show the result without reloading the entire page
