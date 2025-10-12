@@ -61,11 +61,9 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
         # Display class name
         class_name = COCO_CLASSES.get(label.item(), "Unknown")
         predicted_classes.append(class_name)
+        print(f"Detected classes: {predicted_classes}, Scores: {score}")
 
         score_pred = score
-        # Draw rectangle and text
-        # draw.rectangle([xmin, ymin, xmax, ymax], outline="blue", width=2)
-        # draw.text((xmin, ymin), f"{class_name} ({score:.2f})", fill="blue", font=_FONT)
 
     return pil_img, predicted_classes, score_pred
 
@@ -79,11 +77,10 @@ def detect_image(input_img):
         class_names (list): List of detected class names
     """
     annotated, class_names, scores = draw_boxes(input_img.copy())
-    print("Type drcnn:", type(input_img))
-    print(f"Detected classes: {class_names}, Scores: {scores}")
-    answer = vqa.get_answer(input_img)
-    total_score = vqa.decision(class_names, answer, scores)
-    print("VQA Answer:", total_score)
+
+    # VQA
+    answers, confidences = vqa.get_answer(input_img)
+    total_score = vqa.decision(class_names, answers, confidences, scores)
     
     return annotated, class_names, total_score
 
@@ -141,8 +138,8 @@ def detect_video(input_path, output_path):
             detections_all.extend(class_names)
 
             # VQA
-            answer = vqa.get_answer(annotated_pil)
-            total_score = vqa.decision(class_names, answer, scores)
+            answers, confidences = vqa.get_answer(pil_frame)
+            total_score = vqa.decision(class_names, answers, confidences, scores)
 
             # Convert back to OpenCV
             annotated_cv2 = cv2.cvtColor(np.array(annotated_pil), cv2.COLOR_RGB2BGR)
