@@ -1,12 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-    --font-play: "Playfair Display", serif;
-    --font-lato: "Lato", sans-serif;
+    --font-read: "Readex Pro", sans-serif;
 }
 
+body {
+    @apply font-read;
+}
 .card {
-    @apply bg-white border-1 border-gray-200 rounded-sm overflow-hidden p-4 shadow-md shadow-gray-200 relative;
+    @apply bg-white border-1 border-gray-200 rounded-sm overflow-hidden p-5 shadow-md shadow-gray-200 relative;
 }
 
 .badge {
@@ -14,28 +16,28 @@
 }
 
 .btn {
-    @apply rounded-full p-2 uppercase text-[16px] font-bold font-lato cursor-pointer tracking-wider w-50 text-center;
+    @apply rounded-full p-2 uppercase text-[16px] font-bold cursor-pointer tracking-wider w-50 text-center;
 }
 
 .container-full {
-    @apply p-10 md:p-20 sm:p-10 w-full
+    @apply px-20 pt-20 w-full;
 }
 
 .heading {
-    @apply text-xl md:text-5xl/18 sm:text-xl font-play mt-20
+    @apply text-xl md:text-5xl/18 sm:text-xl mt-20;
 }
 
 .subheading {
-    @apply text-base md:text-4xl/8 sm:text-lg font-play text-center mb-2
+    @apply text-base md:text-4xl/8 sm:text-lg text-center mb-2;
 }
 
 .subsubheading {
-    @apply text-base md:text-2xl/8 sm:text-base font-play text-center mb-2
+    @apply text-base md:text-2xl/8 sm:text-base text-center mb-2;
 }
 .caption {
-    @apply text-xs md:text-sm/6 sm:text-xs font-lato text-gray-500 mb-4 md:mb-10 text-center
+    @apply text-xs md:text-sm/6 sm:text-xs text-gray-500 mb-4 md:mb-10 text-center;
 }
 
 .normal {
-    @apply text-sm md:text-base/8 sm:text-sm font-lato
+    @apply text-sm md:text-base/8 sm:text-sm;
 }

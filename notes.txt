@@ -46,7 +46,7 @@ Links
 - https://github.com/ai-forever/Real-ESRGAN
 - https://www.reddit.com/r/StableDiffusion/comments/120fd60/16line_python_code_for_removing_adversarial_noise/
 
-
+npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch  
 
 
 
