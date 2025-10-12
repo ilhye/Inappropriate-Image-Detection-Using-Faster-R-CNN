@@ -30,3 +30,4 @@ accelerate
 
 # Image processing
 scikit-image
+transformers

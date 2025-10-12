@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 from cocoClass import COCO_CLASSES
 from purify.purification import Purifier
 from purify.realesrgan import RealESRGANWrapper
+from qa import vqa
 
 # Load default model
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -28,7 +29,7 @@ def get_model(weights_path="models/fasterrcnn_resnet50_epoch_5.pth", num_classes
 
 _MODEL = get_model()
 
-def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
+def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
     """ Output media with bounding boxes and their classes
     Args:
         pil_img (PIL.Image): Input image from the routes.py
@@ -47,7 +48,9 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
     print("Raw labels:", pred["labels"].tolist())
     print("Raw scores:", pred["scores"].tolist())
 
-    draw = ImageDraw.Draw(pil_img)
+    # draw = ImageDraw.Draw(pil_img)
+
+    score_pred = 0
 
     # Draw boxes and labels
     for box, label, score in zip(pred["boxes"], pred["labels"], pred["scores"]):
@@ -59,11 +62,12 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.8) -> Image.Image:
         class_name = COCO_CLASSES.get(label.item(), "Unknown")
         predicted_classes.append(class_name)
 
+        score_pred = score
         # Draw rectangle and text
-        draw.rectangle([xmin, ymin, xmax, ymax], outline="blue", width=2)
-        draw.text((xmin, ymin), f"{class_name} ({score:.2f})", fill="blue", font=_FONT)
+        # draw.rectangle([xmin, ymin, xmax, ymax], outline="blue", width=2)
+        # draw.text((xmin, ymin), f"{class_name} ({score:.2f})", fill="blue", font=_FONT)
 
-    return pil_img, predicted_classes
+    return pil_img, predicted_classes, score_pred
 
 def detect_image(input_img):
     """Detect objects in an image 
@@ -74,8 +78,14 @@ def detect_image(input_img):
         annotated (PIL.Image): Image with bounding boxes drawn
         class_names (list): List of detected class names
     """
-    annotated, class_names = draw_boxes(input_img.copy())
-    return annotated, class_names
+    annotated, class_names, scores = draw_boxes(input_img.copy())
+    print("Type drcnn:", type(input_img))
+    print(f"Detected classes: {class_names}, Scores: {scores}")
+    answer = vqa.get_answer(input_img)
+    total_score = vqa.decision(class_names, answer, scores)
+    print("VQA Answer:", total_score)
+    
+    return annotated, class_names, total_score
 
 def detect_video(input_path, output_path):
     """Detect objects in a video at 1 FPS
@@ -126,9 +136,13 @@ def detect_video(input_path, output_path):
 
             # Draw detection boxes
             print("Detecting objects...")
-            annotated_pil, class_names = draw_boxes(pil_frame)
+            annotated_pil, class_names, scores = draw_boxes(pil_frame)
             print("Detection done.")
             detections_all.extend(class_names)
+
+            # VQA
+            answer = vqa.get_answer(annotated_pil)
+            total_score = vqa.decision(class_names, answer, scores)
 
             # Convert back to OpenCV
             annotated_cv2 = cv2.cvtColor(np.array(annotated_pil), cv2.COLOR_RGB2BGR)
@@ -145,4 +159,4 @@ def detect_video(input_path, output_path):
     cap.release()
     out.release()
     print("Done! Video saved as:", output_path)
-    return output_path, detections_all
+    return output_path, detections_all, total_score
