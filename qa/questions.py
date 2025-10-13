@@ -9,6 +9,7 @@ questions = [
     # --- Violence & Weapons ---
     "Is there a weapon?",
     "Is there an injured person?",
+    "Is there a dead person?",
     "Are people fighting?",
     "Is one person threatening another person?",
 

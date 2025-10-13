@@ -94,7 +94,7 @@ def content_moderation():
             if score >= 0.8:
                 print("Inappropriate content detected:", class_names)
                 os.remove(upload_path)
-                message = f"Contains NSFW content: {', '.join(class_names)}\n"
+                message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
             elif score >= 0.5:
                 message = f"Possibly inappropriate content: {', '.join(class_names)}\n"
             elif score < 0.5:
@@ -104,17 +104,19 @@ def content_moderation():
 
         # ---------- VIDEO PROCESSING ----------
         elif ext in [".mp4", ".avi", ".mov"]:
-            result_vid, class_names = detect_video(upload_path, annot_path)
+            class_names, scores = detect_video(upload_path, annot_path)
             media_url = url_for("static", filename=f"annotated/pred_{filename}")
 
-            print("VQA Score routes:", score)
-            if score >= 0.8:
+            print("VQA Score routes:", scores)
+            if scores >= 0.8:
                 print("Inappropriate content detected:", class_names)
                 os.remove(upload_path)
-                message = f"Contains NSFW content: {', '.join(class_names)}\n"
-            elif score >= 0.5:
+                message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
+            elif scores >= 0.5:
                 message = f"Possibly inappropriate content: {', '.join(class_names)}\n"
-            elif score == 0.0:
+            elif score < 0.5:
+                message = "Content appears to be safe"
+            elif scores == 0.0:
                 message = "Content appears to be an art"
     
     return render_template("main.html", form=form, media_url=media_url, message=message)

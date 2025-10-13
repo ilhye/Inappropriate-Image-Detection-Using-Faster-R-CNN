@@ -1,8 +1,13 @@
 const fileUpload = document.getElementById('file-upload');
 
+// Get file extension
+function fileExtension(filename) {
+    return filename.files[0].name.split(".").pop();
+}
 // Preview uploaded image
 function showPreview(event) {
     const previewImg = document.getElementById('preview-image');
+    const previewVid = document.getElementById('preview-video');
     const uploadLabel = document.getElementById('upload-label');
     const uploadIcon = document.getElementById('upload-icon');
     const resultImg = document.getElementById('result-image');
@@ -14,15 +19,24 @@ function showPreview(event) {
     }
 
     const file = event.target.files[0];
+    const fileExt = fileExtension(fileUpload).toLowerCase();
+    console.log("File extension:", fileExt);
 
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            previewImg.src = e.target.result;
-            previewImg.classList.remove('hidden');
-            uploadLabel.classList.add('hidden');
-            uploadIcon.classList.add('hidden');
-        };
+            if (fileExt.match(/(mp4|avi|mov)$/i)) { // Preview video
+                previewVid.src = e.target.result;
+                previewVid.classList.remove('hidden');
+                uploadLabel.classList.add('hidden');
+                uploadIcon.classList.add('hidden');
+            } else if (fileExt.match(/(jpg|jpeg|png|gif)$/i)) { // Preview image
+                previewImg.src = e.target.result;
+                previewImg.classList.remove('hidden');
+                uploadLabel.classList.add('hidden');
+                uploadIcon.classList.add('hidden');
+            }
+        }
         reader.readAsDataURL(file);
     } else {
         previewImg.classList.add('hidden');
@@ -35,6 +49,7 @@ function showPreview(event) {
 function resetForm() {
     const fileUpload = document.getElementById('file-upload');
     const previewImg = document.getElementById('preview-image');
+    const previewVid = document.getElementById('preview-video');
     const resultImg = document.getElementById('result-image');
     const message = document.getElementById('server-message');
     const uploadIcon = document.getElementById('upload-icon');
@@ -49,10 +64,16 @@ function resetForm() {
         fileUpload.value = '';
     }
 
-    // Hide preview and clear src
+    // Hide image preview and clear src
     if (previewImg) {
         previewImg.classList.add('hidden');
         previewImg.src = '#';
+    }
+
+    // Hide video preview and clear src
+    if (previewVid) {
+        previewVid.classList.add('hidden');
+        previewVid.src = '#';
     }
     
     // Reset upload label and icon

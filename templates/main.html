@@ -329,7 +329,7 @@
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             </svg>
             <h3 class="text-2xl font-semibold mb-3 mt-5">Upload Image</h3>
-            <p class="text-gray-700">
+            <p class="text-gray-500 font-light">
               Select and upload the image you want to analyze for adversarial
               patches
             </p>
@@ -369,7 +369,7 @@
               <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
             </svg>
             <h3 class="text-2xl font-semibold mb-3 mt-5">Process & Detect</h3>
-            <p class="text-gray-500">
+            <p class="text-gray-500 font-light">
               Our model processes the image using purification,
               super-resolution, and Faster R-CNN to detect potential
               inappropriate content.
@@ -404,7 +404,7 @@
             </svg>
 
             <h3 class="text-2xl font-semibold mb-3 mt-5">View Results</h3>
-            <p class="text-gray-500">
+            <p class="text-gray-500 font-light">
               Review the analysis results with detailed insights on detected
               objects.
             </p>
@@ -442,6 +442,12 @@
                 alt="Preview"
                 class="hidden h-64 w-full"
               />
+              <video
+                src="#"
+                id="preview-video"
+                class="hidden h-64 w-full"
+                controls
+              ></video>
               <!-- Icon -->
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -463,7 +469,7 @@
                 <path d="m8 17 4-4 4 4" />
               </svg>
               <p class="font-light text-gray-600" id="upload-label">
-                Click to upload or drag and drop
+                Click to upload
               </p>
               {{form.uploadImg(class="max-w-xs mx-auto block w-full text-sm
               border-1 border-indigo-100 rounded-full mt-3 text-gray-600
@@ -506,14 +512,31 @@
             >
               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
             </svg>
-            {% if media_url %}
+            {% if media_url %} {% set ext = media_url.split('.')[-1].lower() %}
+            {% if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'] %}
             <img
               src="{{ media_url }}"
-              class="h-64 w-full py-auto"
-              alt="Detected Objects"
+              class="h-64 w-full object-contain rounded-lg shadow-md"
+              alt="Detected Image"
               id="result-image"
             />
-            {% endif %} {% if message %}
+            {% elif ext in ['mp4', 'webm', 'ogg', 'mov'] %}
+            <video
+              src="{{ media_url }}"
+              class="h-64 w-full object-contain rounded-lg shadow-md"
+              controls
+              autoplay
+              loop
+              id="result-video"
+            ></video>
+            {% else %}
+            <p class="text-gray-500 text-center mt-3">
+              Unsupported media format
+            </p>
+            {% endif %} {% endif %}
+
+            <!-- Message result -->
+            {% if message %}
             <p
               class="normal text-gray-500 text-center mt-3 py-10"
               id="server-message"
@@ -554,7 +577,10 @@
           <p class="caption">Computer Science Student</p>
           <div class="socials flex gap-2 justify-center">
             <!-- Email -->
-            <a href="mailto:ashleymagcamit@gmail.com" class="bg-indigo-500 p-3 rounded-full text-white">
+            <a
+              href="mailto:ashleymagcamit@gmail.com"
+              class="bg-indigo-500 p-3 rounded-full text-white"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -637,7 +663,10 @@
           <p class="caption">Computer Science Student</p>
           <div class="socials flex gap-2 justify-center">
             <!-- Email -->
-            <a href="mailto:pailden.catherinejoy@gmail.com" class="bg-indigo-500 p-3 rounded-full text-white">
+            <a
+              href="mailto:pailden.catherinejoy@gmail.com"
+              class="bg-indigo-500 p-3 rounded-full text-white"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -720,7 +749,10 @@
           <p class="caption">Computer Science Student</p>
           <div class="socials flex gap-2 justify-center">
             <!-- Email -->
-            <a href="mailto:alex041927@gmail.com" class="bg-indigo-500 p-3 rounded-full text-white">
+            <a
+              href="mailto:alex041927@gmail.com"
+              class="bg-indigo-500 p-3 rounded-full text-white"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -803,7 +835,10 @@
           <p class="caption">Computer Science Student</p>
           <div class="socials flex gap-2 justify-center">
             <!-- Email -->
-            <a href="mailto:cristinacvillasor960@gmail.com" class="bg-indigo-500 p-3 rounded-full text-white">
+            <a
+              href="mailto:cristinacvillasor960@gmail.com"
+              class="bg-indigo-500 p-3 rounded-full text-white"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"

@@ -15,7 +15,7 @@ from qa import vqa
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 _FONT = ImageFont.load_default()
 
-def get_model(weights_path="models/fasterrcnn_resnet50_epoch_5.pth", num_classes=11):
+def get_model(weights_path="models/fasterrcnn_resnet50_epoch_5an.pth", num_classes=11):
     """ Load custom classes
     Args:
         weigth_path (str): Path to model weights
@@ -133,12 +133,12 @@ def detect_video(input_path, output_path):
 
             # Draw detection boxes
             print("Detecting objects...")
-            annotated_pil, class_names, scores = draw_boxes(pil_frame)
+            annotated_pil, class_names, scores = draw_boxes(sr_frame)
             print("Detection done.")
             detections_all.extend(class_names)
 
             # VQA
-            answers, confidences = vqa.get_answer(pil_frame)
+            answers, confidences = vqa.get_answer(sr_frame)
             total_score = vqa.decision(class_names, answers, confidences, scores)
 
             # Convert back to OpenCV
@@ -156,4 +156,4 @@ def detect_video(input_path, output_path):
     cap.release()
     out.release()
     print("Done! Video saved as:", output_path)
-    return output_path, detections_all, total_score
+    return detections_all, total_score

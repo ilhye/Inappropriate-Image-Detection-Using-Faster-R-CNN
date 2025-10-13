@@ -57,10 +57,10 @@ def decision(classes, answers, vqa_confidences, detection_score):
     Returns:
         total_score (float): Combined score indicating likelihood of inappropriate content
     """
-    is_art = answers[0].lower() == "yes" if answers else False
+    is_art = answers[0].lower() == "yes" and vqa_confidences[0] > 0.8 if answers else False
 
     # Calculate harmful score based on yes answers
-    harmful_confs = [conf for ans, conf in zip(answers[1:9], vqa_confidences[1:9]) if ans.lower() == "yes"]
+    harmful_confs = [conf for ans, conf in zip(answers[1:11], vqa_confidences[1:11]) if ans.lower() == "yes"]
     harmful_score = np.mean(harmful_confs) if harmful_confs else 0.0
     print("Harmful: confidence", harmful_confs, "Harmful score:", harmful_score)
 
