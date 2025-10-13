@@ -202,34 +202,34 @@
           <li class="flex items-start">
             <span class="text-primary font-bold mr-3 text-indigo-500">1.</span>
             <span
-              ><strong>Projected Gradient Descent (PGD):</strong> Lorem ipsum
-              dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua.</span
-            >
+              ><strong>Projected Gradient Descent (PGD):</strong> Iterative
+              version of FGSM. It takes multiple, smaller steps, constantly
+              checking that the adversarial example stays within a constrained
+              "threat model"</span
             >
           </li>
           <li class="flex items-start">
             <span class="text-primary font-bold mr-3 text-indigo-500">2.</span>
             <span
-              ><strong>Fast Gradient Sign Method (FGSM):</strong> Lorem ipsum
-              dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua.</span
+              ><strong>Fast Gradient Sign Method (FGSM):</strong> Find the
+              direction that will most increase the loss (the model's error) and
+              take one small step in that direction.</span
             >
           </li>
           <li class="flex items-start">
             <span class="text-primary font-bold mr-3 text-indigo-500">3.</span>
             <span
-              ><strong>Expectation Over Transformation (EoT):</strong> Lorem
-              ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-              tempor incididunt ut labore et dolore magna aliqua.</span
+              ><strong>Expectation Over Transformation (EoT):</strong> EoT
+              assumes the adversary's image will be transformed (e.g., rotated,
+              scaled, changed in lighting) before the model sees it.</span
             >
           </li>
           <li class="flex items-start">
             <span class="text-primary font-bold mr-3 text-indigo-500">4.</span>
             <span
-              ><strong>Carlini & Wagner (CW):</strong> Lorem ipsum dolor sit
-              amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua.</span
+              ><strong>Carlini & Wagner (CW):</strong> It frames the problem as
+              a sophisticated optimization: find the smallest possible
+              perturbation that causes misclassification</span
             >
           </li>
           <li class="flex items-start">
@@ -238,8 +238,10 @@
               ><strong
                 >Backward Pass Differentiable Approximation (BPDA):</strong
               >
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.</span
+              Many early defenses (e.g., adding randomization, pre-processing
+              with denoisers) were not truly robust; they just "broke" the
+              gradient, making white-box attacks like PGD fail. BPDA is designed
+              to circumvent these "obfuscated gradients."</span
             >
           </li>
         </ul>
@@ -571,7 +573,7 @@
           <div
             class="w-30 h-30 rounded-full bg-indigo-500 from-primary to-accent mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold"
           >
-            AM
+            AFM
           </div>
           <p class="font-semibold text-center mt-2">Ashley Faye J. Magcamit</p>
           <p class="caption">Computer Science Student</p>
@@ -579,7 +581,7 @@
             <!-- Email -->
             <a
               href="mailto:ashleymagcamit@gmail.com"
-              class="bg-indigo-500 p-3 rounded-full text-white"
+              class="bg-indigo-500 hover:bg-indigo-700 p-3 rounded-full text-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -657,7 +659,7 @@
           >
             CJR
           </div>
-          <p class="normal font-semibold text-center mt-2">
+          <p class="font-semibold text-center mt-2">
             Catherine Joy R. Pailden
           </p>
           <p class="caption">Computer Science Student</p>
@@ -665,7 +667,7 @@
             <!-- Email -->
             <a
               href="mailto:pailden.catherinejoy@gmail.com"
-              class="bg-indigo-500 p-3 rounded-full text-white"
+              class="bg-indigo-500 hover:bg-indigo-700 p-3 rounded-full text-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -743,7 +745,7 @@
           >
             AP
           </div>
-          <p class="normal font-semibold text-center mt-2">
+          <p class="font-semibold text-center mt-2">
             Alexandre C. Pornea
           </p>
           <p class="caption">Computer Science Student</p>
@@ -751,7 +753,7 @@
             <!-- Email -->
             <a
               href="mailto:alex041927@gmail.com"
-              class="bg-indigo-500 p-3 rounded-full text-white"
+              class="bg-indigo-500 hover:bg-indigo-700 p-3 rounded-full text-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -829,7 +831,7 @@
           >
             CV
           </div>
-          <p class="normal font-semibold text-center mt-2">
+          <p class="font-semibold text-center mt-2">
             Cristina C. Villasor
           </p>
           <p class="caption">Computer Science Student</p>
@@ -837,7 +839,7 @@
             <!-- Email -->
             <a
               href="mailto:cristinacvillasor960@gmail.com"
-              class="bg-indigo-500 p-3 rounded-full text-white"
+              class="bg-indigo-500 hover:bg-indigo-700 p-3 rounded-full text-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
