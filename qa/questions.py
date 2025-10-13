@@ -1,6 +1,6 @@
 questions = [
     # --- Context ---
-    "Is this a an art?",
+    "Is this a painting?",
     "Is this for educational purposes?",
 
     # --- Nudity & Sexual Content ---

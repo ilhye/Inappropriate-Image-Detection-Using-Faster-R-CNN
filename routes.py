@@ -54,6 +54,7 @@ def content_moderation():
     form = CreatePost()
     media_url = None
     message = ""
+    score_threshold = 0.8  # Threshold to flag as inappropriate
     # read button text from either query string or POST form data
     # request.values merges args and form so it covers both GET and POST
     text = request.values.get('button_text')
@@ -91,16 +92,11 @@ def content_moderation():
             print("Detected:", class_names)
 
             print("VQA Score routes:", score)
-            if score >= 0.8:
-                print("Inappropriate content detected:", class_names)
+            if score_threshold < score:
                 os.remove(upload_path)
                 message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
-            elif score >= 0.5:
-                message = f"Possibly inappropriate content: {', '.join(class_names)}\n"
-            elif score < 0.5:
+            else:
                 message = "Content appears to be safe"
-            elif score == 0.0:
-                message = "Content appears to be an art"
 
         # ---------- VIDEO PROCESSING ----------
         elif ext in [".mp4", ".avi", ".mov"]:
@@ -108,15 +104,10 @@ def content_moderation():
             media_url = url_for("static", filename=f"annotated/pred_{filename}")
 
             print("VQA Score routes:", scores)
-            if scores >= 0.8:
-                print("Inappropriate content detected:", class_names)
+            if score_threshold < score:
                 os.remove(upload_path)
                 message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
-            elif scores >= 0.5:
-                message = f"Possibly inappropriate content: {', '.join(class_names)}\n"
-            elif score < 0.5:
+            else:
                 message = "Content appears to be safe"
-            elif scores == 0.0:
-                message = "Content appears to be an art"
     
     return render_template("main.html", form=form, media_url=media_url, message=message)

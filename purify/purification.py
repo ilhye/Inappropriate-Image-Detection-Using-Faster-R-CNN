@@ -23,9 +23,9 @@ class Purifier:
         """Purifying image using anisotropic diffusion
         Args:
             input_img: Input image to be purified
-            alpha: Conduction coefficient
+            alpha: Conduction coefficient prevent over-smoothing
             K: Sensitivity to edges
-            iterations: Number of iterations
+            iterations: Number of iterations, chosen to provide sufficient denoising without computational overhead
             option: 1 for Perona-Malik (more aggressive), 2 for Tukey's biweight function (relies on region)
         Return:
             img: The purified image

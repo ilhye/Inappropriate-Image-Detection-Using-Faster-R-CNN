@@ -57,36 +57,35 @@ def decision(classes, answers, vqa_confidences, detection_score):
     Returns:
         total_score (float): Combined score indicating likelihood of inappropriate content
     """
-    is_art = answers[0].lower() == "yes" and vqa_confidences[0] > 0.8 if answers else False
-
-    # Calculate harmful score based on yes answers
-    harmful_confs = [conf for ans, conf in zip(answers[1:11], vqa_confidences[1:11]) if ans.lower() == "yes"]
-    harmful_score = np.mean(harmful_confs) if harmful_confs else 0.0
-    print("Harmful: confidence", harmful_confs, "Harmful score:", harmful_score)
-
-    # Handles art context
-    if is_art:  # Handles art context
-        if harmful_score >= 0.8 and any(name in COCO_CLASSES.values() for name in classes):
-            return 1.0  # Inappropriate
-        elif harmful_score > 0.5:
-            return 0.5   # Mildly inappropriate
-        else:
-             return 0.0  # Safe
     
-    # Handles non-art context
-    # Faster R-CNN score and if relevant COCO classes found, boost by 0.2
+    # Calculate harmful score based on yes answers
+    harmful_confs = [conf for ans, conf in zip(answers[2:12], vqa_confidences[2:12]) if ans.lower() == "yes"]
+    harmful_score = np.mean(harmful_confs) if harmful_confs else 0.0
+    print("Harmful confidence list:", harmful_confs, "→ Harmful score:", harmful_score)
+
+    # Identify art and educational context
+    is_art = answers[0].lower() == "yes" and vqa_confidences[0] > 0.8
+    is_educational = answers[1].lower() == "yes" and vqa_confidences[1] > 0.8
+
+    # Adjust harmful score based on context
+    if is_art:
+        harmful_score *= 0.5 # 50% reduction for art
+    if is_educational:
+        harmful_score *= 0.5 # 50% reduction for educational
+
+    # Boost faster r-cnn score if relevant coco classes found
     coco_boost = 0.15 if any(name in COCO_CLASSES.values() for name in classes) else 0.0
     detection_component = min(detection_score + coco_boost, 1.0)
     print("Detection component:", detection_component)
 
-    # Weights of VQA and Faster R-CNN confidence
-    vqa_weight = 0.3 + (np.mean(vqa_confidences) * 0.2) # 30-50%
-    det_weight = 1.0 - vqa_weight # 50-70%
+    # Weighted averaged based on VQA and Faster R-CNN confidence
+    vqa_weight = 0.3 + (np.mean(vqa_confidences) * 0.2)  # between 0.3–0.5
+    det_weight = 1.0 - vqa_weight
     print(f"Weights => VQA: {vqa_weight:.2f}, Detection: {det_weight:.2f}")
 
-    # Weighted average based on VQA and Faster R-CNN confidence
+    # Weighted average ensemble
     total_score = (vqa_weight * harmful_score) + (det_weight * detection_component)
     total_score = float(np.clip(total_score, 0.0, 1.0))
-    print("Total score:", total_score)
+    print("Final total score:", total_score)
 
-    return float(total_score)
+    return total_score
