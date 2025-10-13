@@ -13,7 +13,8 @@ This project aims to detect inappropriate content in images using a pre-trained 
 - [Faster R-CNN](https://arxiv.org/abs/1506.01497)
 
 ## Datasets
-- [Violence Dataset](https://universe.roboflow.com/securityviolence/violence-detection-p4qev/dataset/4)
+- [Large Scale Porngraphic Dataset](https://sites.google.com/uit.edu.vn/LSPD)
+- [Harmful Object Detection Dataset](https://github.com/poori-nuna/HOD-Benchmark-Dataset)
 
 * To download the dataset:
     ```bash
