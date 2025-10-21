@@ -1,5 +1,5 @@
 from flask import Flask
-from routes2 import bp as routes_bp
+from routes import bp as routes_bp
 from dotenv import load_dotenv
 
 import modal
