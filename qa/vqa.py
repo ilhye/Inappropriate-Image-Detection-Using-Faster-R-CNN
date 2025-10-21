@@ -1,6 +1,7 @@
 import io
 import numpy as np
 import os
+import torch
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
@@ -85,7 +86,15 @@ def decision(classes, answers, vqa_confidences, detection_score):
 
     # Weighted average ensemble
     total_score = (vqa_weight * harmful_score) + (det_weight * detection_component)
-    total_score = float(np.clip(total_score, 0.0, 1.0))
+    # total_score = float(np.clip(total_score, 0.0, 1.0)) # For T4
+    # total_score = float(torch.clamp(total_score, 0.0, 1.0).item()) # For B200
+
+    if isinstance(total_score, torch.Tensor):
+        # move to CPU, ensure float
+        total_score = float(torch.clamp(total_score, 0.0, 1.0).item())
+    else:
+        total_score = float(np.clip(total_score, 0.0, 1.0))
+        
     print("Final total score:", total_score)
 
     return total_score

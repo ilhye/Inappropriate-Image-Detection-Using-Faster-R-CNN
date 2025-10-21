@@ -1,12 +1,15 @@
+# Use this if you want to use the system locally but if you want to use it in Modal, just run 
+# modal serve main.py
+
 # Web framework
 flask
 flask-wtf
 
 # Machine Learning
-torch
-torchvision
+# torch
+# torchvision
 pillow
-opencv-contrib-python
+opencv-contrib-python-headless
 tensorflow
 numpy
 scipy
@@ -27,6 +30,7 @@ huggingface_hub
 
 # For performance
 accelerate
+modal
 
 # Image processing
 scikit-image

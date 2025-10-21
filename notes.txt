@@ -48,5 +48,7 @@ Links
 
 npx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch  
 
+old epoch - latest pth files
+new epoch - combined lspd and hod, epoch 9 (17k images)
 
 

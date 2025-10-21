@@ -12,7 +12,7 @@ from PIL import Image
 from torchvision.transforms import ToTensor, ToPILImage
 from utils import convert_to_np  
 from cocoClass import COCO_CLASSES
-from frcnn import detect_image, detect_video
+from frcnn_two import detect_image, detect_video
 # from realesrgan_wrapper import load_model as esrgan_load_model, run_sr as esrgan_run_sr
 from purify.purification import Purifier
 from purify.realesrgan import RealESRGANWrapper
@@ -30,7 +30,11 @@ os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Input forms
+# _esrgan_model = esrgan_load_model(device=DEVICE)
+
+# -----------------------------
+# Flask form
+# -----------------------------
 class CreatePost(FlaskForm):
     uploadImg = FileField(
         "Upload File",
@@ -42,14 +46,17 @@ class CreatePost(FlaskForm):
     reset = SubmitField("Reset")
     submit = SubmitField("Submit")
 
-# Main route - content moderation
+# -----------------------------
+# Main Route
+# -----------------------------
 @bp.route("/", methods=["GET", "POST"])
 def content_moderation():
     form = CreatePost()
     media_url = None
     message = ""
-    score_threshold = 0.8  
-
+    score_threshold = 0.8  # Threshold to flag as inappropriate
+    # read button text from either query string or POST form data
+    # request.values merges args and form so it covers both GET and POST
     text = request.values.get('button_text')
     print(f"Button text: {text}")
 
@@ -63,10 +70,9 @@ def content_moderation():
         file.save(upload_path)
         print(f"File type: {type(upload_path)}")
 
-        # Get file extension
         ext = os.path.splitext(filename)[1].lower()
 
-        # Image processing: purifiacation -> super-resolution -> object detection
+        # ---------- IMAGE PROCESSING----------
         if ext in [".jpg", ".jpeg", ".png"]:
             pil = Image.open(upload_path).convert("RGB")
             print(f"File type: {type(pil)}")
@@ -76,6 +82,7 @@ def content_moderation():
 
             print("Starting super-resolution...")
             enhanced = RealESRGANWrapper.enhance(processed_pil)
+            print("Enhanced image obtained")
 
             print("Starting object detection...")
             result_img, class_names, score = detect_image(enhanced)
@@ -92,13 +99,13 @@ def content_moderation():
             else:
                 message = "Content appears to be safe"
 
-        # Video processing: get frames -> purifiacation -> super-resolution -> object detection -> repeat
+        # ---------- VIDEO PROCESSING ----------
         elif ext in [".mp4", ".avi", ".mov"]:
-            class_names, scores = detect_video(upload_path, annot_path)
+            class_names, score = detect_video(upload_path, annot_path)
             media_url = url_for("static", filename=f"annotated/pred_{filename}")
 
-            print("VQA Score routes:", scores)
-            if score_threshold < scores:
+            print("VQA Score routes:", score)
+            if score_threshold < score:
                 os.remove(upload_path)
                 message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
             else:

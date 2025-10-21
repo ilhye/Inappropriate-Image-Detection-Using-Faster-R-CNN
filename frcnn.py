@@ -15,7 +15,7 @@ from qa import vqa
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 _FONT = ImageFont.load_default()
 
-def get_model(weights_path="models/fasterrcnn_resnet50_epoch_5.pth", num_classes=11):
+def get_model(weights_path="models/fasterrcnn_resnet50_epoch_9.pth", num_classes=11):
     """ Load custom classes
     Args:
         weigth_path (str): Path to model weights
@@ -115,8 +115,8 @@ def detect_video(input_path, output_path):
         if not ret:
             break
 
-        # Process only 1 frame per second
-        if frame_idx % int(input_fps) == 0:
+        # Process only 10 frames per second
+        if frame_idx % 10 == 0:
             # Convert frame to PIL image
             print(type(frame))
             pil_frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -148,9 +148,6 @@ def detect_video(input_path, output_path):
 
             # Write frame
             out.write(annotated_cv2)
-        
-        # print(f"frame: {frame_idx}")
-        frame_idx += 1
 
     # Release resources
     cap.release()
