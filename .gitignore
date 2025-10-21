@@ -11,8 +11,7 @@ __pycache__
 node_modules
 
 # Model weights
-models/fasterrcnn_resnet50_epoch_9.pth
-models/fasterrcnn_resnet50_epoch_5.pth
+content_mod.pth
 models/RealESRGAN_x4.pth
 models/RealESRGAN_x2.pth
 

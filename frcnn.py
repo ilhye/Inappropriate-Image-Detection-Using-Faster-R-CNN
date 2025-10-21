@@ -15,7 +15,7 @@ from qa import vqa
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 _FONT = ImageFont.load_default()
 
-def get_model(weights_path="models/fasterrcnn_resnet50_epoch_9.pth", num_classes=11):
+def get_model(weights_path="models/content_mod.pth", num_classes=11):
     """ Load custom classes
     Args:
         weigth_path (str): Path to model weights
