@@ -47,7 +47,7 @@ flask_app.config["SECRET_KEY"] = os.getenv("CONFIG")
 flask_app.secret_key = os.getenv("SECRET_KEY")
 flask_app.register_blueprint(routes_bp)
 
-@app.function(image=image, gpu="T4")
+@app.function(image=image, gpu="T4", timeout=1800)
 @modal.wsgi_app()
 def modal_app():
     """Serve Flask app on Modal"""
