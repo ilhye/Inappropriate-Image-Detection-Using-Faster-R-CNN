@@ -10,7 +10,7 @@ from wtforms import SubmitField
 from werkzeug.utils import secure_filename
 from PIL import Image
 from torchvision.transforms import ToTensor, ToPILImage
-from utils import convert_to_np  
+from utils import convert_to_np
 from cocoClass import COCO_CLASSES
 from frcnn import detect_image, detect_video
 # from realesrgan_wrapper import load_model as esrgan_load_model, run_sr as esrgan_run_sr
@@ -36,19 +36,22 @@ class CreatePost(FlaskForm):
         "Upload File",
         validators=[
             FileRequired(),
-            FileAllowed(["jpg", "jpeg", "png", "mp4", "avi", "mov"], "Images/Videos only"),
+            FileAllowed(["jpg", "jpeg", "png", "mp4", "avi",
+                        "mov"], "Images/Videos only"),
         ],
     )
     reset = SubmitField("Reset")
     submit = SubmitField("Submit")
 
 # Main route - content moderation
+
+
 @bp.route("/", methods=["GET", "POST"])
 def content_moderation():
     form = CreatePost()
     media_url = None
     message = ""
-    score_threshold = 0.8  
+    score_threshold = 0.8
 
     text = request.values.get('button_text')
     print(f"Button text: {text}")
@@ -82,26 +85,28 @@ def content_moderation():
             print("Detection complete")
 
             result_img.save(annot_path)
-            media_url = url_for("static", filename=f"annotated/pred_{filename}")
+            media_url = url_for(
+                "static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
 
             print("VQA Score routes:", score)
             if score_threshold < score:
                 os.remove(upload_path)
-                message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
+                message = f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning"
             else:
                 message = "Content appears to be safe"
 
         # Video processing: get frames -> purifiacation -> super-resolution -> object detection -> repeat
         elif ext in [".mp4", ".avi", ".mov"]:
             class_names, scores = detect_video(upload_path, annot_path)
-            media_url = url_for("static", filename=f"annotated/pred_{filename}")
+            media_url = url_for(
+                "static", filename=f"annotated/pred_{filename}")
 
             print("VQA Score routes:", scores)
             if score_threshold < scores:
                 os.remove(upload_path)
-                message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
+                message = f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning"
             else:
                 message = "Content appears to be safe"
-    
+
     return render_template("main.html", form=form, media_url=media_url, message=message)

@@ -48,7 +48,7 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
     print("Raw labels:", pred["labels"].tolist())
     print("Raw scores:", pred["scores"].tolist())
 
-    # draw = ImageDraw.Draw(pil_img)
+    draw = ImageDraw.Draw(pil_img)
 
     score_pred = 0
 
@@ -64,6 +64,9 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
         print(f"Detected classes: {predicted_classes}, Scores: {score}")
 
         score_pred = score
+
+        draw.rectangle([xmin, ymin, xmax, ymax], outline="blue", width=2)
+        draw.text((xmin, ymin), f"{class_name} ({score:.2f})", fill="blue", font=_FONT)
 
     return pil_img, predicted_classes, score_pred
 
