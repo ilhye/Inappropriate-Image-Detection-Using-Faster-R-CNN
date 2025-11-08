@@ -1,7 +1,7 @@
 """
 ===========================================================
 Program: VQA
-Programmer/s: Cristina C. Villasor
+Programmer/s: Catherine Joy R. Pailden and Cristina C. Villasor
 Date Written: Oct 11, 2025
 Last Revised: Oct. 21, 2025
 

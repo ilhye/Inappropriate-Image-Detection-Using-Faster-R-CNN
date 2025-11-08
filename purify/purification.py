@@ -1,7 +1,7 @@
 """
 ===========================================================
 Program: Purification
-Programmer/s: Cristina C. Villasor
+Programmer/s: Catherine Joy R. Pailden and Cristina C. Villasor
 Date Written: Oct. 5, 2025
 Last Revised: Oct. 14, 2025
 
