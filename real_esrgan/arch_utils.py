@@ -1,3 +1,21 @@
+"""
+===========================================================
+Program: Arch Utils
+Programmer/s: Ashley Faye J. Magcamit and Alexandre C. Pornea
+Date Written: Sept. 24, 2025
+Last Revised: Oct. 6, 2025
+
+Purpose: Utility functions for real-esrgan architecture.
+         This contains help functions that will build the RRDBNet architecture.
+
+Program Fits in the General System Design: This is used when the RRDBNet architecture is defined
+                                           which is the main function for super-resolution
+
+Credits:
+- Code sourced directly from Igor Pavlov, Alex Wortoga, and Emily's GitHub repository: https://github.com/ai-forever/Real-ESRGAN
+- Original Real-ESRGAN implementation by Xintao Wang, Liangbin Xie, Chao Dong, and Ying Shan: https://github.com/xinntao/Real-ESRGAN
+===========================================================
+"""
 import math
 import torch
 from torch import nn as nn
