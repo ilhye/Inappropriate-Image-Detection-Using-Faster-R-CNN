@@ -1,3 +1,30 @@
+"""
+===========================================================
+Program: Purification
+Programmer/s: Cristina C. Villasor
+Date Written: Oct. 5, 2025
+Last Revised: Oct. 14, 2025
+
+Purpose: This applies filtering technique that reduces noises while preserving important features like an edge
+
+Program Fits in the General System Design:
+- This is used right after taking an image input from user
+- Called in the routes and frcnn.py for video processing
+- Output is also used by super-resolution module
+
+Algorithm: 
+- Convert image into float
+- For 10 iterations: 
+    - Compute differences between pixel and its neighbors (gradient)
+    - Compute conduction values based on gradient and K
+    - Update pixel values based on conduction values and alpha 
+
+Data Structures and Controls: 
+- Uses 2D arrays for image representation
+- Uses loops for iterative processing
+- Uses if-else condition for conduction function choice
+===========================================================
+"""
 import cv2
 from cv2.ximgproc import guidedFilter, anisotropicDiffusion
 from utils import *
@@ -31,6 +58,7 @@ class Purifier:
             img: The purified image
         """
         img = input_img.astype(np.float32)
+
         for _ in range(iterations):
             # Computes differences between pixel and its neighbors (gradient)
             # axis = 0: vertical; axis = 1: horizontal
