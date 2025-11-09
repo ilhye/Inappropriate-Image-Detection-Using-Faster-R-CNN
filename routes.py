@@ -59,6 +59,8 @@ class CreatePost(FlaskForm):
     submit = SubmitField("Submit")
 
 # Main route - content moderation
+
+
 @bp.route("/", methods=["GET", "POST"])
 def content_moderation():
     form = CreatePost()      # Input form instance
