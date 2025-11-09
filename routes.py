@@ -1,7 +1,30 @@
+"""
+===========================================================
+Program: Routes
+Programmer/s: Cristina C. Villasor
+Date Written: June 15, 2025
+Last Revised: Oct. 21, 2025
+
+Purpose: Handles image and video uploads and maps a specific URL for the frontend. 
+
+Program Fits in the General System Design:
+- Defines the starting point of the image and video process
+- Provide connection between the backend and frontend
+
+Algorithm: 
+- Reads input, if image, performs purification, super-resolution, and object detection. 
+- If video, process by every 10th frame, then purification, super-resolution, and object detection. 
+- Each detection will undergo VQA, then a final score will be created.
+- If score is less than 0.8, then media is safe.
+- Else the media will be filtered. 
+
+Data Structures and Controls: 
+- Uses a list to avoid repeating classes
+- Uses if-else condition to process correctly the image/video
+===========================================================
+"""
 import os
-import numpy as np
 import torch
-import cv2
 
 from flask import Blueprint, render_template, request, url_for
 from flask_wtf import FlaskForm
@@ -9,46 +32,41 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import SubmitField
 from werkzeug.utils import secure_filename
 from PIL import Image
-from torchvision.transforms import ToTensor, ToPILImage
-from utils import convert_to_np  
-from cocoClass import COCO_CLASSES
 from frcnn import detect_image, detect_video
-# from realesrgan_wrapper import load_model as esrgan_load_model, run_sr as esrgan_run_sr
 from purify.purification import Purifier
 from purify.realesrgan import RealESRGANWrapper
-# from purify.test_purify import AdversarialPatchPurifier
 
-bp = Blueprint("routes", __name__)
+bp = Blueprint("routes", __name__)  # Blueprint for routes
 
-# -----------------------------
-# Folders
-# -----------------------------
-UPLOAD_IMG_FOLDER = os.path.join("static", "uploads")
-ANNOT_IMG_FOLDER = os.path.join("static", "annotated")
+UPLOAD_IMG_FOLDER = os.path.join("static", "uploads")   # Folders for uploaded images/videos
+ANNOT_IMG_FOLDER = os.path.join("static", "annotated")  # Folder for annotated images/videos
 os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Input forms
+# Input form for uploading video and image
 class CreatePost(FlaskForm):
     uploadImg = FileField(
         "Upload File",
         validators=[
             FileRequired(),
-            FileAllowed(["jpg", "jpeg", "png", "mp4", "avi", "mov"], "Images/Videos only"),
+            FileAllowed(["jpg", "jpeg", "png", "mp4", "avi",
+                        "mov"], "Images/Videos only"),
         ],
     )
     reset = SubmitField("Reset")
     submit = SubmitField("Submit")
 
 # Main route - content moderation
+
+
 @bp.route("/", methods=["GET", "POST"])
 def content_moderation():
-    form = CreatePost()
-    media_url = None
-    message = ""
-    score_threshold = 0.8  
+    form = CreatePost()      # Input form instance
+    media_url = None         # For displaying annotated media
+    message = ""             # For displaying safe/inappropriate message
+    score_threshold = 0.8    # Final threshold after VQA and object detection
 
     text = request.values.get('button_text')
     print(f"Button text: {text}")
@@ -57,7 +75,7 @@ def content_moderation():
         file = request.files.get("uploadImg")
         filename = secure_filename(file.filename)
 
-        # Save images/videos and still media when passed to pipeline
+        # Save images/video to uploads folder
         upload_path = os.path.join(UPLOAD_IMG_FOLDER, filename)
         annot_path = os.path.join(ANNOT_IMG_FOLDER, f"pred_{filename}")
         file.save(upload_path)
@@ -66,42 +84,40 @@ def content_moderation():
         # Get file extension
         ext = os.path.splitext(filename)[1].lower()
 
-        # Image processing: purifiacation -> super-resolution -> object detection
+        # Image processing: purification -> super-resolution -> object detection
         if ext in [".jpg", ".jpeg", ".png"]:
-            pil = Image.open(upload_path).convert("RGB")
-            print(f"File type: {type(pil)}")
+            pil = Image.open(upload_path).convert("RGB")            # Load image
 
-            print("Starting advanced purification...")
-            processed_pil = Purifier.process(pil)
+            processed_pil = Purifier.process(pil)                   # Purification
 
-            print("Starting super-resolution...")
-            enhanced = RealESRGANWrapper.enhance(processed_pil)
+            enhanced = RealESRGANWrapper.enhance(processed_pil)     # Super-resolution
 
-            print("Starting object detection...")
-            result_img, class_names, score = detect_image(enhanced)
-            print("Detection complete")
+            result_img, class_names, score = detect_image(enhanced) # Object detection
 
-            result_img.save(annot_path)
-            media_url = url_for("static", filename=f"annotated/pred_{filename}")
+            result_img.save(annot_path)                             # Save annotated image
+
+            media_url = url_for(
+                "static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
 
-            print("VQA Score routes:", score)
+            # Filter image based on the score
             if score_threshold < score:
                 os.remove(upload_path)
-                message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
+                message = f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning"
             else:
                 message = "Content appears to be safe"
 
         # Video processing: get frames -> purifiacation -> super-resolution -> object detection -> repeat
         elif ext in [".mp4", ".avi", ".mov"]:
-            class_names, scores = detect_video(upload_path, annot_path)
-            media_url = url_for("static", filename=f"annotated/pred_{filename}")
+            class_names, scores = detect_video(upload_path, annot_path) # Object detection
+            media_url = url_for(
+                "static", filename=f"annotated/pred_{filename}")
 
-            print("VQA Score routes:", scores)
+            # Filter video based on the score
             if score_threshold < scores:
                 os.remove(upload_path)
-                message = f"Contains Inappropriate content: {', '.join(class_names)}\n"
+                message = f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning"
             else:
                 message = "Content appears to be safe"
-    
+
     return render_template("main.html", form=form, media_url=media_url, message=message)

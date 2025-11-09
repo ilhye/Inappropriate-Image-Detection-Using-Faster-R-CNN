@@ -1,3 +1,26 @@
+"""
+===========================================================
+Program: Model
+Programmer/s: Ashley Faye J. Magcamit and Alexandre C. Pornea
+Date Written: Sept. 24, 2025
+Last Revised: Oct. 6, 2025
+
+Purpose: Main module for super-resolution using Real-ESRGAN model
+
+Program Fits in the General System Design: This is used when realesrgan calls for the predict() 
+                                           which is the main function for super-resolution
+
+Algorithm: 
+- Split images into overlapping patches
+- Process each patch in batches through the RRDBNet model
+- Stitch the processed patches back together
+- Unpad the final image to original dimensions
+
+Credits:
+- Code sourced directly from Igor Pavlov, Alex Wortoga, and Emily's GitHub repository: https://github.com/ai-forever/Real-ESRGAN
+- Original Real-ESRGAN implementation by Xintao Wang, Liangbin Xie, Chao Dong, and Ying Shan: https://github.com/xinntao/Real-ESRGAN
+===========================================================
+"""
 import os
 import torch
 from torch.nn import functional as F
