@@ -1,3 +1,29 @@
+"""
+===========================================================
+Program: FRCNN
+Programmer/s: Cristina C. Villasor
+Date Written: June 15, 2025
+Last Revised: Oct. 21, 2025
+
+Purpose: Handles object detection using Faster R-CNN with custom classes.
+
+Program Fits in the General System Design:
+- Detects objects in images/videos after purification and super-resolution
+- Provides annotated media with bounding boxes and class names
+- Helps determine whether the media contains inappropriate content
+
+Algorithm: 
+- Takes input from routes 
+- Initialize Faster R-CNN with ResNet-50 backbone and load pre-trained model
+- If image, uses detect_image(), then calls draw_boxes() to get detected classes and annotated images
+- If video, uses detect_video() on every 10th frame. Each frame undergoes purification and super-resolution before the object detection. After processing all frames, resources are released and final output is saved in the annotated folder.
+- Each detection will undergo VQA, then a final score will be created.
+
+Data Structures and Controls: 
+- Uses a list for storing classes
+- Uses a while loop for processing frames
+===========================================================
+"""
 import torch
 import cv2
 import numpy as np
@@ -11,15 +37,16 @@ from purify.purification import Purifier
 from purify.realesrgan import RealESRGANWrapper
 from qa import vqa
 
-# Load default model
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-_FONT = ImageFont.load_default()
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu") # Use GPU if available
+_FONT = ImageFont.load_default()                                      # Default font for drawing 
 
 def get_model(weights_path="models/content_mod.pth", num_classes=11):
     """ Load custom classes
     Args:
-        weigth_path (str): Path to model weights
+        weights_path (str): Path to model weights
         num_classes (int): Number of classes including background or 0 index
+    Returns:
+        model (torch.nn.Module): Loaded model in eval mode
     """
     model = fasterrcnn_resnet50_fpn(weights=None)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
@@ -27,7 +54,7 @@ def get_model(weights_path="models/content_mod.pth", num_classes=11):
     model.load_state_dict(torch.load(weights_path, map_location=DEVICE))
     return model.to(DEVICE).eval()
 
-_MODEL = get_model()
+_MODEL = get_model() # Load the model
 
 def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
     """ Output media with bounding boxes and their classes
@@ -38,21 +65,18 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
         pil_img (PIL.Image): Image with bounding boxes drawn
         predicted_classes (list): List of detected class names
     """
-    img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE) 
+    img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE)  # Convert PIL to tensor and add batch dimension
 
-    with torch.no_grad():
+    with torch.no_grad(): # Disable gradient calculation for inference
         pred = _MODEL(img_tensor)[0]
 
     predicted_classes = []
 
-    print("Raw labels:", pred["labels"].tolist())
-    print("Raw scores:", pred["scores"].tolist())
-
-    draw = ImageDraw.Draw(pil_img)
+    draw = ImageDraw.Draw(pil_img) # For drawing boxes
 
     score_pred = 0
 
-    # Draw boxes and labels
+    # Draw boxes for each detected object
     for box, label, score in zip(pred["boxes"], pred["labels"], pred["scores"]):
         if score < score_thresh:
             continue
@@ -78,10 +102,9 @@ def detect_image(input_img):
     Returns:
         annotated (PIL.Image): Image with bounding boxes drawn
         class_names (list): List of detected class names
+        total_score (float): Final score after VQA and object detection
     """
     annotated, class_names, scores = draw_boxes(input_img.copy())
-
-    # VQA
     answers, confidences = vqa.get_answer(input_img)
     total_score = vqa.decision(class_names, answers, confidences, scores)
     
@@ -112,7 +135,6 @@ def detect_video(input_path, output_path):
     frame_idx = 0
     detections_all = []
 
-    # Process video frame by frame at 1 FPS
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -121,32 +143,18 @@ def detect_video(input_path, output_path):
         # Process only 10 frames per second
         if frame_idx % 10 == 0:
             # Convert frame to PIL image
-            print(type(frame))
             pil_frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
-            # Purification
-            print("Purifying frame...")
-            purified = Purifier.process(pil_frame)
-            print("Purification done.")
-
-            # Super-Resolution
-            print("Applying super-resolution...")
-            sr_frame = RealESRGANWrapper.enhance(purified)
-            print("Super-resolution done.")
-
-            # Draw detection boxes
-            print("Detecting objects...")
-            annotated_pil, class_names, scores = draw_boxes(sr_frame)
-            print("Detection done.")
-            detections_all.extend(class_names)
-
-            # VQA
-            answers, confidences = vqa.get_answer(sr_frame)
-            total_score = vqa.decision(class_names, answers, confidences, scores)
+            purified = Purifier.process(pil_frame)                    # Purification
+            sr_frame = RealESRGANWrapper.enhance(purified)            # Super-resolution
+            annotated_pil, class_names, scores = draw_boxes(sr_frame) # Object detection
+            detections_all.extend(class_names)                        # Append detected classes 
+            answers, confidences = vqa.get_answer(sr_frame)           # VQA
+            total_score = vqa.decision(class_names, answers, confidences, scores) # Final score
 
             # Convert back to OpenCV
             annotated_cv2 = cv2.cvtColor(np.array(annotated_pil), cv2.COLOR_RGB2BGR)
-            # Resize to original size just in case
+            # Resize to original size
             annotated_cv2 = cv2.resize(annotated_cv2, (width, height))
 
             # Write frame

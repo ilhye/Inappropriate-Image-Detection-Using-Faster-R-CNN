@@ -1,3 +1,17 @@
+"""
+===========================================================
+Program: Main
+Programmer/s: Cristina C. Villasor
+Date Written: June 15, 2025
+Last Revised: Oct. 21, 2025
+
+Purpose: Entry point for the Flask application
+
+Program Fits in the General System Design:
+- Entry point of the system
+- Registers routes for handling URL
+===========================================================
+"""
 from flask import Flask
 from routes import bp as routes_bp
 from dotenv import load_dotenv
@@ -7,7 +21,7 @@ import os
 
 load_dotenv() # Load .env file
 
-app = modal.App("inco-flask-app")
+app = modal.App("inco-flask-app") # Initialize Modal app
 
 # Create dependencies
 image = (
@@ -41,17 +55,16 @@ image = (
     )
 )
 
-# Create Flask app
-flask_app = Flask(__name__)
-flask_app.config["SECRET_KEY"] = os.getenv("CONFIG")
-flask_app.secret_key = os.getenv("SECRET_KEY")
-flask_app.register_blueprint(routes_bp)
+flask_app = Flask(__name__)                          # Create Flask app
+flask_app.config["SECRET_KEY"] = os.getenv("CONFIG") # Set config key
+flask_app.secret_key = os.getenv("SECRET_KEY")       # Set secret key
+flask_app.register_blueprint(routes_bp)              # Register routes blueprint
 
-@app.function(image=image, gpu="T4", timeout=1800)
-@modal.wsgi_app()
-def modal_app():
+@app.function(image=image, gpu="T4")    # Define modal function 
+@modal.wsgi_app()                       # Create WSGI webpoint
+def modal_app():                        # Serve Flask app on Modal
     """Serve Flask app on Modal"""
     return flask_app
 
-if __name__ == "__main__":
+if __name__ == "__main__":              # Run Flask app locally
     flask_app.run(debug=True)

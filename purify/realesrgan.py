@@ -1,4 +1,22 @@
-# realesrgan_wrapper.py
+"""
+===========================================================
+Program: Real-ESRGAN
+Programmer/s: Cristina C. Villasor
+Date Written: Oct. 5, 2025
+Last Revised: Oct. 5, 2025
+
+Purpose: Finalizes the purification process by enhancing the image resolution using Real-ESRGAN model.
+
+Program Fits in the General System Design:
+- It is used after the purification module
+- Called in the routes and frcnn.py for video processing
+- Output is also used by object detection module
+
+Algorithm: 
+- Load the pretrained Real-ESRGAN model
+- Then run super-resolution on the purified image
+===========================================================
+"""
 import torch
 from PIL import Image
 import numpy as np

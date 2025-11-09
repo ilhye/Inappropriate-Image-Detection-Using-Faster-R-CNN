@@ -1,3 +1,16 @@
+"""
+===========================================================
+Program: Utils
+Programmer/s: Cristina C. Villasor
+Date Written: Oct. 5, 2025
+Last Revised: Oct. 5, 2025
+
+Purpose: This contains functions reusable functions 
+
+Program Fits in the General System Design:
+- Called in routes, frcnn, and purification for image processing
+===========================================================
+"""
 import numpy as np
 
 from PIL import Image
