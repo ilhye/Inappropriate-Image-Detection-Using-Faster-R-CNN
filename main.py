@@ -60,9 +60,9 @@ flask_app.config["SECRET_KEY"] = os.getenv("CONFIG") # Set config key
 flask_app.secret_key = os.getenv("SECRET_KEY")       # Set secret key
 flask_app.register_blueprint(routes_bp)              # Register routes blueprint
 
-@app.function(image=image, gpu="T4")    # Define modal function 
-@modal.wsgi_app()                       # Create WSGI webpoint
-def modal_app():                        # Serve Flask app on Modal
+@app.function(image=image, gpu="T4", timeout=1800)    # Define modal function 
+@modal.wsgi_app()                                     # Create WSGI webpoint
+def modal_app():                                      # Serve Flask app on Modal
     """Serve Flask app on Modal"""
     return flask_app
 
