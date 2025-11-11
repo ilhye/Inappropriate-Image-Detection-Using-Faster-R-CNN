@@ -64,7 +64,7 @@ class CreatePost(FlaskForm):
 @bp.route("/", methods=["GET", "POST"])
 def content_moderation():
     form = CreatePost()      # Input form instance
-    output_url = None         # For displaying annotated media
+    media_url = None         # For displaying annotated media
     message = ""             # For displaying safe/inappropriate message
     score_threshold = 0.8    # Final threshold after VQA and object detection
 
@@ -87,12 +87,16 @@ def content_moderation():
         # Image processing: purification -> super-resolution -> object detection
         if ext in [".jpg", ".jpeg", ".png"]:
             pil = Image.open(upload_path).convert("RGB")            # Load image
+
             processed_pil = Purifier.process(pil)                   # Purification
+
             enhanced = RealESRGANWrapper.enhance(processed_pil)     # Super-resolution
+
             result_img, class_names, score = detect_image(enhanced) # Object detection
+
             result_img.save(annot_path)                             # Save annotated image
 
-            output_url = url_for(
+            media_url = url_for(
                 "static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
 
@@ -106,7 +110,7 @@ def content_moderation():
         # Video processing: get frames -> purifiacation -> super-resolution -> object detection -> repeat
         elif ext in [".mp4", ".avi", ".mov"]:
             class_names, scores = detect_video(upload_path, annot_path) # Object detection
-            output_url = url_for(
+            media_url = url_for(
                 "static", filename=f"annotated/pred_{filename}")
 
             # Filter video based on the score
@@ -116,4 +120,4 @@ def content_moderation():
             else:
                 message = "Content appears to be safe"
 
-    return render_template("main.html", form=form, output_url=output_url, message=message)
+    return render_template("main.html", form=form, media_url=media_url, message=message)

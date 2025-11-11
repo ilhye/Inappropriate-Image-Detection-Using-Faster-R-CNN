@@ -37,8 +37,8 @@ from qa.questions import questions
 from cocoClass import COCO_CLASSES
 
 #Loading the model and tokenizer
-PROCESSOR = ViltProcessor.from_pretrained("dandelin/vilt-b32-finetuned-vqa")
-MODEL = ViltForQuestionAnswering.from_pretrained("dandelin/vilt-b32-finetuned-vqa")
+processor = ViltProcessor.from_pretrained("dandelin/vilt-b32-finetuned-vqa")
+model = ViltForQuestionAnswering.from_pretrained("dandelin/vilt-b32-finetuned-vqa")
 
 def get_answer(image, question=questions):
     """ Get answer based on the questions
@@ -55,12 +55,12 @@ def get_answer(image, question=questions):
         confidences = []
 
         for qa in questions:
-            encoding = PROCESSOR(image, qa, return_tensors="pt") # Prepare inputs
+            encoding = processor(image, qa, return_tensors="pt") # Prepare inputs
 
-            outputs = MODEL(**encoding)                   # Get model outputs
+            outputs = model(**encoding)                   # Get model outputs
             logits = outputs.logits                       # Extract logits
             idx = logits.argmax(-1).item()                # Get index of highest logit
-            answer = MODEL.config.id2label[idx]           # Get answers
+            answer = model.config.id2label[idx]           # Get answers
             confidence = logits.softmax(-1).max().item()  # Get confidence score
 
             print(f"Q: {qa} A: {answer} (confidence: {confidence:.4f})")
@@ -84,8 +84,8 @@ def decision(classes, answers, vqa_confidences, detection_score):
     
     # Calculate harmful score based on yes answers
     harmful_confs = [conf for ans, conf in zip(answers[2:12], vqa_confidences[2:12]) if ans.lower() == "yes"]
-    harmful_avg = np.mean(harmful_confs) if harmful_confs else 0.0
-    print("Harmful confidence list:", harmful_confs, "→ Harmful score:", harmful_avg)
+    harmful_score = np.mean(harmful_confs) if harmful_confs else 0.0
+    print("Harmful confidence list:", harmful_confs, "→ Harmful score:", harmful_score)
 
     # Identify art and educational context
     is_art = answers[0].lower() == "yes" and vqa_confidences[0] > 0.8
@@ -93,9 +93,9 @@ def decision(classes, answers, vqa_confidences, detection_score):
 
     # Adjust harmful score based on context
     if is_art:
-        harmful_avg *= 0.5 # 50% reduction for art
+        harmful_score *= 0.5 # 50% reduction for art
     if is_educational:
-        harmful_avg *= 0.5 # 50% reduction for educational
+        harmful_score *= 0.5 # 50% reduction for educational
 
     # Boost faster r-cnn score if relevant coco classes found
     coco_boost = 0.15 if any(name in COCO_CLASSES.values() for name in classes) else 0.0
@@ -108,7 +108,7 @@ def decision(classes, answers, vqa_confidences, detection_score):
     print(f"Weights => VQA: {vqa_weight:.2f}, Detection: {det_weight:.2f}")
 
     # Weighted average ensemble
-    total_score = (vqa_weight * harmful_avg) + (det_weight * detection_component)
+    total_score = (vqa_weight * harmful_score) + (det_weight * detection_component)
 
     if isinstance(total_score, torch.Tensor):
         # Move to CPU, ensure float
