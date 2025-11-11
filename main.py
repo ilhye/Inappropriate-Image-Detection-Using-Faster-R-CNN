@@ -51,7 +51,7 @@ image = (
     .add_local_dir(
         local_path=".",
         remote_path="/root",
-        ignore=[".git", "__pycache__", "venv", "static/uploads/", "static/annotated/", "node_modules/"]
+        ignore=[".git", "__pycache__", "venv", "node_modules/"]
     )
 )
 

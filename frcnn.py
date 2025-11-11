@@ -27,6 +27,7 @@ Data Structures and Controls:
 import torch
 import cv2
 import numpy as np
+import os 
 
 from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
@@ -127,20 +128,29 @@ def detect_video(input_path, output_path):
     input_fps = cap.get(cv2.CAP_PROP_FPS)
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
-    # Output video at 1 FPS (1 frame per second)
-    out = cv2.VideoWriter(output_path, fourcc, 1, (width, height))
+    # Try different codecs for better compatibility
+    for codec in ['mp4v', 'avc1', 'H264']:
+        fourcc = cv2.VideoWriter_fourcc(*codec)
+        out = cv2.VideoWriter(output_path, fourcc, input_fps, (width, height))
+        if out.isOpened():
+            print(f"Using codec: {codec}")
+            break
+    else:
+        print("ERROR: Could not initialize video writer with any codec")
+        cap.release()
+        return output_path, [], 0.0
 
     frame_idx = 0
     detected_classes = []
+    all_scores = []
 
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Process only 10 frames per second
+        # Process every frame but only annotate every 10th frame for performance
         if frame_idx % 10 == 0:
             # Convert frame to PIL image
             pil_frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -148,20 +158,47 @@ def detect_video(input_path, output_path):
             purified = Purifier.process(pil_frame)                    # Purification
             sr_frame = RealESRGANWrapper.enhance(purified)            # Super-resolution
             annotated_frame, class_names, scores = draw_boxes(sr_frame) # Object detection
-            detected_classes.extend(class_names)                      # Append detected classes 
+            detected_classes.extend(class_names)                      # Append detected classes
+            print("Detected classes so far:", detected_classes)
             answers, confidences = vqa.get_answer(sr_frame)           # VQA
-            total_score = vqa.decision(class_names, answers, confidences, scores) # Final score
+            frame_score = vqa.decision(class_names, answers, confidences, scores) # Final score
+            all_scores.append(frame_score)
 
-            # Convert back to OpenCV
+            # Convert back to OpenCV and write annotated frame
             annotated_cv2 = cv2.cvtColor(np.array(annotated_frame), cv2.COLOR_RGB2BGR)
-            # Resize to original size
             annotated_cv2 = cv2.resize(annotated_cv2, (width, height))
-
-            # Write frame
             out.write(annotated_cv2)
+        else:
+            # Write original frame (no annotation) to maintain video timing
+            out.write(frame)
+
+        frame_idx += 1
 
     # Release resources
     cap.release()
     out.release()
+
+    # Verify the output video was created and has content
+    if os.path.exists(output_path):
+        file_size = os.path.getsize(output_path)
+        print(f"Video file size: {file_size} bytes")
+        if file_size == 0:
+            print("ERROR: Video file is empty!")
+        else:
+            print(f"Video file created successfully: {output_path}")
+    else:
+        print(f"ERROR: Video file was not created: {output_path}")
+
     print("Done! Video saved as:", output_path)
-    return detected_classes, total_score
+
+    # Reopen the output video to check frame count
+    out_cap = cv2.VideoCapture(output_path)
+    out_frame_count = int(out_cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    out_fps = out_cap.get(cv2.CAP_PROP_FPS)
+    out_duration = out_frame_count / out_fps if out_fps > 0 else 0
+    out_cap.release()
+
+    print(f"Output video frames: {out_frame_count}, FPS: {out_fps}, Duration: {out_duration:.2f} seconds")
+    total_score = max(all_scores) if all_scores else 0.0
+    print("Final total score:", total_score)
+    return output_path, detected_classes, total_score
