@@ -147,13 +147,13 @@ def detect_video(input_path, output_path):
 
             purified = Purifier.process(pil_frame)                    # Purification
             sr_frame = RealESRGANWrapper.enhance(purified)            # Super-resolution
-            annotated_pil, class_names, scores = draw_boxes(sr_frame) # Object detection
+            annotated_frame, class_names, scores = draw_boxes(sr_frame) # Object detection
             detected_classes.extend(class_names)                      # Append detected classes 
             answers, confidences = vqa.get_answer(sr_frame)           # VQA
             total_score = vqa.decision(class_names, answers, confidences, scores) # Final score
 
             # Convert back to OpenCV
-            annotated_cv2 = cv2.cvtColor(np.array(annotated_pil), cv2.COLOR_RGB2BGR)
+            annotated_cv2 = cv2.cvtColor(np.array(annotated_frame), cv2.COLOR_RGB2BGR)
             # Resize to original size
             annotated_cv2 = cv2.resize(annotated_cv2, (width, height))
 
