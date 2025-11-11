@@ -38,11 +38,11 @@ class Purifier:
         orig_img = convert_to_np(input_img)
 
         # Anisotropic > Super-Resolution
-        purified = Purifier.anisotropic(orig_img)
-        psnr_value = psnr(original=orig_img, purified=purified)
+        purified_img = Purifier.anisotropic(orig_img)
+        psnr_value = psnr(original=orig_img, purified=purified_img)
 
         print(f"PSNR in: {psnr_value:.2f}dB")
-        return purified
+        return purified_img
 
     # Remove noise while preserving edges
     @staticmethod

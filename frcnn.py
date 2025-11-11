@@ -100,15 +100,15 @@ def detect_image(input_img):
         input_img (PIL.Image): Input image in PIL format
     
     Returns:
-        annotated (PIL.Image): Image with bounding boxes drawn
+        annotated_img (PIL.Image): Image with bounding boxes drawn
         class_names (list): List of detected class names
         total_score (float): Final score after VQA and object detection
     """
-    annotated, class_names, scores = draw_boxes(input_img.copy())
+    annotated_img, class_names, scores = draw_boxes(input_img.copy())
     answers, confidences = vqa.get_answer(input_img)
     total_score = vqa.decision(class_names, answers, confidences, scores)
     
-    return annotated, class_names, total_score
+    return annotated_img, class_names, total_score
 
 def detect_video(input_path, output_path):
     """Detect objects in a video at 1 FPS
@@ -133,7 +133,7 @@ def detect_video(input_path, output_path):
     out = cv2.VideoWriter(output_path, fourcc, 1, (width, height))
 
     frame_idx = 0
-    detections_all = []
+    detected_classes = []
 
     while True:
         ret, frame = cap.read()
@@ -147,13 +147,13 @@ def detect_video(input_path, output_path):
 
             purified = Purifier.process(pil_frame)                    # Purification
             sr_frame = RealESRGANWrapper.enhance(purified)            # Super-resolution
-            annotated_pil, class_names, scores = draw_boxes(sr_frame) # Object detection
-            detections_all.extend(class_names)                        # Append detected classes 
+            annotated_frame, class_names, scores = draw_boxes(sr_frame) # Object detection
+            detected_classes.extend(class_names)                      # Append detected classes 
             answers, confidences = vqa.get_answer(sr_frame)           # VQA
             total_score = vqa.decision(class_names, answers, confidences, scores) # Final score
 
             # Convert back to OpenCV
-            annotated_cv2 = cv2.cvtColor(np.array(annotated_pil), cv2.COLOR_RGB2BGR)
+            annotated_cv2 = cv2.cvtColor(np.array(annotated_frame), cv2.COLOR_RGB2BGR)
             # Resize to original size
             annotated_cv2 = cv2.resize(annotated_cv2, (width, height))
 
@@ -164,4 +164,4 @@ def detect_video(input_path, output_path):
     cap.release()
     out.release()
     print("Done! Video saved as:", output_path)
-    return detections_all, total_score
+    return detected_classes, total_score
