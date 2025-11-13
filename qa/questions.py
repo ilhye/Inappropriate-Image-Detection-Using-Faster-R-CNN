@@ -25,8 +25,6 @@ Data Structures and Controls:
 - Uses if-else condition for conduction function choice
 ===========================================================
 """
-import cv2
-from cv2.ximgproc import guidedFilter, anisotropicDiffusion
 import numpy as np
 
 class Purifier:
