@@ -46,7 +46,6 @@ image = (
         "scipy",
         "python-dotenv",
         "modal",
-        "scikit-image"
     )
     .add_local_dir(
         local_path=".",
