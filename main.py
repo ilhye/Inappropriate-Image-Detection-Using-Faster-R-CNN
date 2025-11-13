@@ -3,7 +3,7 @@
 Program: Main
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Oct. 21, 2025
+Last Revised: Nov. 13, 2025
 
 Purpose: Entry point for the Flask application
 
@@ -19,19 +19,23 @@ from dotenv import load_dotenv
 import modal
 import os
 
-load_dotenv() # Load .env file
+load_dotenv()  # Load .env file
 
-app = modal.App("inco-flask-app") # Initialize Modal app
+app = modal.App("coin")  # Initialize Modal app
+
+uploads_volume = modal.Volume.from_name("uploads-storage", create_if_missing=True)
+annot_volume = modal.Volume.from_name("annot-storage", create_if_missing=True)
 
 # Create dependencies
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install("libgl1", "libglib2.0-0")
-    .pip_install("torch==2.8.0", "torchvision==0.23.0")
     .pip_install(
         "flask",
         "flask-wtf",
         "wtforms",
+        "torch",
+        "torchvision",
         "werkzeug",
         "huggingface-hub",
         "transformers",
@@ -41,9 +45,6 @@ image = (
         "numpy",
         "scipy",
         "python-dotenv",
-        "tqdm",
-        "blobfile",
-        "xformers",
         "accelerate",
         "modal",
         "scikit-image"
@@ -51,20 +52,25 @@ image = (
     .add_local_dir(
         local_path=".",
         remote_path="/root",
-        ignore=[".git", "__pycache__", "venv", "node_modules/"]
+        ignore=[".git", "__pycache__", "venv", "node_modules/",
+                "static/uploads", "static/annotated", ".gitignore"]
     )
 )
 
 flask_app = Flask(__name__)                          # Create Flask app
-flask_app.config["SECRET_KEY"] = os.getenv("CONFIG") # Set config key
-flask_app.secret_key = os.getenv("SECRET_KEY")       # Set secret key
-flask_app.register_blueprint(routes_bp)              # Register routes blueprint
+flask_app.config["SECRET_KEY"] = os.getenv("CONFIG")  # Set config key for CSRF and Modal
+# Register routes blueprint
+flask_app.register_blueprint(routes_bp)
 
-@app.function(image=image, gpu="T4", timeout=1800)    # Define modal function 
+
+# Define modal function
+@app.function(image=image, gpu="T4", timeout=1800, volumes={"/root/static/uploads": uploads_volume,
+                                                            "/root/static/annotated": annot_volume})
 @modal.wsgi_app()                                     # Create WSGI webpoint
 def modal_app():                                      # Serve Flask app on Modal
     """Serve Flask app on Modal"""
     return flask_app
+
 
 if __name__ == "__main__":              # Run Flask app locally
     flask_app.run(debug=True)

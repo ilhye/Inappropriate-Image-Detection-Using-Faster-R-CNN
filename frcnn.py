@@ -199,6 +199,6 @@ def detect_video(input_path, output_path):
     out_cap.release()
 
     print(f"Output video frames: {out_frame_count}, FPS: {out_fps}, Duration: {out_duration:.2f} seconds")
-    total_score = (sum(all_scores) / len(all_scores)) if all_scores else 0.0
+    total_score = max(all_scores) if all_scores else 0.0
     print("Final total score:", total_score)
     return output_path, detected_classes, total_score
