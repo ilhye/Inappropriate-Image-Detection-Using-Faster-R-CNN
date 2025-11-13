@@ -57,6 +57,8 @@ image = (
 
 flask_app = Flask(__name__)                           # Create Flask app
 flask_app.config["SECRET_KEY"] = os.getenv("CONFIG")  # Set config key for CSRF and Modal
+flask_app.config["UPLOADS_VOLUME"] = uploads_volume
+flask_app.config["ANNOT_VOLUME"] = annot_volume
 flask_app.register_blueprint(routes_bp)               # Register routes blueprint
 
 # Define modal function
