@@ -3,7 +3,7 @@ const authors = [
     auth_name: "Ashley Faye J. Magcamit",
     initials: "AFM",
     role: "Computer Science Student",
-    eemail: "mailto:ashleymagcamit@gmail.com",
+    email: "mailto:ashleymagcamit@gmail.com",
     linkedin: "https://linkedin.com/in/your-profile",
     github: "https://github.com/fayethfuley",
   },
@@ -148,7 +148,7 @@ const step_card = () => {
     step_card += `<div class="relative">
       <!-- Connector line - hidden on mobile -->
       ${
-        steps[i].id != "03"
+        steps[i].id !== "03"
           ? '<div class="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 z-0"></div>'
           : ""
       }
@@ -156,26 +156,33 @@ const step_card = () => {
       <!-- Step number badge - positioned to overlap the card -->
       <div
         class="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold z-10 shadow-lg"
-        >
-          ${steps[i].id}
+      >
+        ${steps[i].id}
       </div>
+
       <div class="card p-8 text-center pt-15 h-full">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="100"
-          height="100"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-upload-icon lucide-upload m-auto text-indigo-500 mt-5"
-        >
-          <path d="M12 3v12" />
-          <path d="m17 8-5-5-5 5" />
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        </svg>
+        ${
+          steps[i].id === "01"
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-icon lucide-upload m-auto text-indigo-500 mt-5">
+                <path d="M12 3v12" />
+                <path d="m17 8-5-5-5 5" />
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              </svg>`
+            : steps[i].id === "02"
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scan-icon lucide-scan m-auto text-indigo-500 mt-5">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+              </svg>`
+            : steps[i].id === "03"
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-big-icon lucide-circle-check-big m-auto text-indigo-500 mt-5">
+                <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+                <path d="m9 11 3 3L22 4" />
+              </svg>`
+            : ""
+        }
+
         <h3 class="text-2xl font-semibold mb-3 mt-5">${steps[i].title}</h3>
         <p class="text-gray-500 font-light">${steps[i].description}</p>
       </div>
@@ -184,6 +191,7 @@ const step_card = () => {
 
   return step_card;
 };
+
 console.log("tina");
 document.getElementById("authors-info").innerHTML = auth_card();
 document.getElementById("steps").innerHTML = step_card();

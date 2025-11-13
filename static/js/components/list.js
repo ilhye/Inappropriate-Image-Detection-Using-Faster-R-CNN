@@ -97,7 +97,7 @@ const type = () => {
   for (let i = 0; i < adv_type.length; i++) {
     type += `<li class="flex items-start">
       <span class="text-primary font-bold mr-3 text-indigo-500">${i + 1}.</span>
-      <span><strong>${adv_type[i].title}</strong>${
+      <span><strong>${adv_type[i].title}</strong> ${
       adv_type[i].description
     }</span>
     </li>`;
