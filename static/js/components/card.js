@@ -114,7 +114,7 @@ const auth_card = () => {
             href="${authors[i].github}"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Visit LinkedIn profile"
+            aria-label="Visit GitHub profile"
             class="bg-indigo-500 hover:bg-indigo-700 p-3 rounded-full text-white transition-colors duration-200"
           >
             <svg
