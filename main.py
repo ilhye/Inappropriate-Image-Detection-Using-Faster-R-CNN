@@ -3,7 +3,7 @@
 Program: Main
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 13, 2025
+Last Revised: Nov. 14, 2025
 
 Purpose: Entry point for the Flask application
 
@@ -45,9 +45,7 @@ image = (
         "numpy",
         "scipy",
         "python-dotenv",
-        "accelerate",
         "modal",
-        "scikit-image"
     )
     .add_local_dir(
         local_path=".",
@@ -57,11 +55,9 @@ image = (
     )
 )
 
-flask_app = Flask(__name__)                          # Create Flask app
+flask_app = Flask(__name__)                           # Create Flask app
 flask_app.config["SECRET_KEY"] = os.getenv("CONFIG")  # Set config key for CSRF and Modal
-# Register routes blueprint
-flask_app.register_blueprint(routes_bp)
-
+flask_app.register_blueprint(routes_bp)               # Register routes blueprint
 
 # Define modal function
 @app.function(image=image, gpu="T4", timeout=1800, volumes={"/root/static/uploads": uploads_volume,
@@ -70,7 +66,6 @@ flask_app.register_blueprint(routes_bp)
 def modal_app():                                      # Serve Flask app on Modal
     """Serve Flask app on Modal"""
     return flask_app
-
 
 if __name__ == "__main__":              # Run Flask app locally
     flask_app.run(debug=True)

@@ -3,7 +3,7 @@
 Program: FRCNN
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Oct. 21, 2025
+Last Revised: Nov. 14, 2025
 
 Purpose: Handles object detection using Faster R-CNN with custom classes.
 
@@ -158,8 +158,7 @@ def detect_video(input_path, output_path):
             purified = Purifier.process(pil_frame)                    # Purification
             sr_frame = RealESRGANWrapper.enhance(purified)            # Super-resolution
             annotated_frame, class_names, scores = draw_boxes(sr_frame) # Object detection
-            detected_classes.extend(class_names)                      # Append detected classes
-            print("Detected classes so far:", detected_classes)
+            detected_classes.extend(class_names)                      # Append detected classes  
             answers, confidences = vqa.get_answer(sr_frame)           # VQA
             frame_score = vqa.decision(class_names, answers, confidences, scores) # Final score
             all_scores.append(frame_score)
@@ -178,27 +177,7 @@ def detect_video(input_path, output_path):
     cap.release()
     out.release()
 
-    # Verify the output video was created and has content
-    if os.path.exists(output_path):
-        file_size = os.path.getsize(output_path)
-        print(f"Video file size: {file_size} bytes")
-        if file_size == 0:
-            print("ERROR: Video file is empty!")
-        else:
-            print(f"Video file created successfully: {output_path}")
-    else:
-        print(f"ERROR: Video file was not created: {output_path}")
-
-    print("Done! Video saved as:", output_path)
-
-    # Reopen the output video to check frame count
-    out_cap = cv2.VideoCapture(output_path)
-    out_frame_count = int(out_cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    out_fps = out_cap.get(cv2.CAP_PROP_FPS)
-    out_duration = out_frame_count / out_fps if out_fps > 0 else 0
-    out_cap.release()
-
-    print(f"Output video frames: {out_frame_count}, FPS: {out_fps}, Duration: {out_duration:.2f} seconds")
     total_score = max(all_scores) if all_scores else 0.0
-    print("Final total score:", total_score)
+    print("Total score:", total_score)
+
     return output_path, detected_classes, total_score
