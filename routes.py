@@ -55,7 +55,7 @@ class CreatePost(FlaskForm):
         validators=[
             FileRequired(),
             FileAllowed(["jpg", "jpeg", "png", "mp4", "avi",
-                        "mov", ".mp4v"], "Images/Videos only"),
+                        "mov", "mp4v"], "Images/Videos only"),
         ],
     )
     reset = SubmitField("Reset")
