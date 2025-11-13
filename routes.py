@@ -3,7 +3,7 @@
 Program: Routes
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 13, 2025
+Last Revised: Nov. 14, 2025
 
 Purpose: Handles image and video uploads and maps a specific URL for the frontend. 
 
@@ -34,13 +34,13 @@ from PIL import Image
 from frcnn import detect_image, detect_video
 from purify.purification import Purifier
 from purify.realesrgan import RealESRGANWrapper
+from markupsafe import Markup
 
-bp = Blueprint("routes", __name__) # Blueprint for routes
+bp = Blueprint("routes", __name__)  # Blueprint for routes
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_IMG_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 ANNOT_IMG_FOLDER = os.path.join(BASE_DIR, "static", "annotated")
-
 os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
@@ -66,66 +66,80 @@ def content_moderation():
     output_url = None         # For displaying annotated media
     message = ""             # For displaying safe/inappropriate message
     score_threshold = 0.8    # Final threshold after VQA and object detection
-    
+
     if request.method == "POST" and form.validate_on_submit():
         file = request.files.get("uploadImg")
         filename = secure_filename(file.filename)
-        
+
         # Save images/video to uploads folder
         upload_path = os.path.join(UPLOAD_IMG_FOLDER, filename)
         annot_path = os.path.join(ANNOT_IMG_FOLDER, f"pred_{filename}")
         file.save(upload_path)
-        
+
         # Commit uploads volume after saving
         if "UPLOADS_VOLUME" in current_app.config:
             current_app.config["UPLOADS_VOLUME"].commit()
-        
+
         # Get file extension
         ext = os.path.splitext(filename)[1].lower()
-        
+
         # Image processing: purification -> super-resolution -> object detection
         if ext in [".jpg", ".jpeg", ".png"]:
-            pil = Image.open(upload_path).convert("RGB")            # Load image
-            processed_pil = Purifier.process(pil)                   # Purification
-            enhanced = RealESRGANWrapper.enhance(processed_pil)     # Super-resolution
-            result_img, class_names, score = detect_image(enhanced) # Object detection
-            result_img.save(annot_path)                             # Save annotated image
+            pil = Image.open(upload_path).convert(
+                "RGB")            # Load image
+            processed_pil = Purifier.process(
+                pil)                   # Purification
+            enhanced = RealESRGANWrapper.enhance(
+                processed_pil)     # Super-resolution
+            result_img, class_names, score = detect_image(
+                enhanced)  # Object detection
+            # Save annotated image
+            result_img.save(annot_path)
 
             # Commit annot volume after saving annotated image
             if "ANNOT_VOLUME" in current_app.config:
                 current_app.config["ANNOT_VOLUME"].commit()
-            
-            output_url = url_for("static", filename=f"annotated/pred_{filename}")
+
+            output_url = url_for(
+                "static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
-            
-            # Filter image based on the score
+
+            # Filter image based on the scor
             if score_threshold < score:
                 os.remove(upload_path)
 
                 if "UPLOADS_VOLUME" in current_app.config:  # Commit after removal
                     current_app.config["UPLOADS_VOLUME"].commit()
-                message = f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning"
+                message = Markup(
+                    f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}<br><br>"
+                    f"Suggested Actions: Content Removal or User Warning"
+                )
             else:
                 message = "Content appears to be safe"
 
-        # Video processing: get frames -> purifiacation -> super-resolution -> object detection -> repeat    
+        # Video processing: get frames -> purification -> super-resolution -> object detection -> repeat
         elif ext in [".mp4", ".avi", ".mov", ".mp4v"]:
-            result_vid, class_names, scores = detect_video(upload_path, annot_path) # Object detection
-            
+            result_vid, class_names, scores = detect_video(
+                upload_path, annot_path)
+
             # Commit annot volume after video processing
             if "ANNOT_VOLUME" in current_app.config:
                 current_app.config["ANNOT_VOLUME"].commit()
-            
-            output_url = url_for("static", filename=f"annotated/pred_{filename}")
-            
+
+            output_url = url_for(
+                "static", filename=f"annotated/pred_{filename}")
+
             # Filter video based on the score
             if score_threshold < scores:
                 os.remove(upload_path)
 
-                if "UPLOADS_VOLUME" in current_app.config: # Commit after removal
+                if "UPLOADS_VOLUME" in current_app.config:  # Commit after removal
                     current_app.config["UPLOADS_VOLUME"].commit()
-                message = f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}\n\nSuggested Actions: Content Removal or User Warning"
+                message = Markup(
+                    f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}<br><br>"
+                    f"Suggested Actions: Content Removal or User Warning"
+                )
             else:
                 message = "Content appears to be safe"
-    
+
     return render_template("main.html", form=form, output_url=output_url, message=message)
