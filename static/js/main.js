@@ -41,7 +41,7 @@ function showPreview(event) {
   if (file) {
     const reader = new FileReader();
     reader.onload = function (e) {
-      if (fileExt.match(/(mp4|avi|mov)$/i)) {
+      if (fileExt.match(/(mp4|avi|mov|mp4v)$/i)) {
         // Preview video
         previewVid.src = e.target.result;
         previewVid.classList.remove("hidden");

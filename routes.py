@@ -26,7 +26,7 @@ Data Structures and Controls:
 import os
 import torch
 
-from flask import Blueprint, render_template, request, url_for
+from flask import Blueprint, render_template, request, url_for, current_app
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import SubmitField
@@ -38,8 +38,11 @@ from purify.realesrgan import RealESRGANWrapper
 
 bp = Blueprint("routes", __name__)  # Blueprint for routes
 
-UPLOAD_IMG_FOLDER = os.path.join("static", "uploads")   # Folders for uploaded images/videos
-ANNOT_IMG_FOLDER = os.path.join("static", "annotated")  # Folder for annotated images/videos
+# UPLOAD_IMG_FOLDER = os.path.join("static", "uploads")   # Local folders for uploaded images/videos
+# ANNOT_IMG_FOLDER = os.path.join("static", "annotated")  # Local folder for annotated images/videos
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_IMG_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
+ANNOT_IMG_FOLDER = os.path.join(BASE_DIR, "static", "annotated")
 os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
@@ -52,7 +55,7 @@ class CreatePost(FlaskForm):
         validators=[
             FileRequired(),
             FileAllowed(["jpg", "jpeg", "png", "mp4", "avi",
-                        "mov"], "Images/Videos only"),
+                        "mov", "mp4v"], "Images/Videos only"),
         ],
     )
     reset = SubmitField("Reset")
@@ -104,8 +107,8 @@ def content_moderation():
                 message = "Content appears to be safe"
 
         # Video processing: get frames -> purifiacation -> super-resolution -> object detection -> repeat
-        elif ext in [".mp4", ".avi", ".mov"]:
-            class_names, scores = detect_video(upload_path, annot_path) # Object detection
+        elif ext in [".mp4", ".avi", ".mov", ".mp4v"]:
+            result_vid, class_names, scores = detect_video(upload_path, annot_path) # Object detection
             output_url = url_for(
                 "static", filename=f"annotated/pred_{filename}")
 
