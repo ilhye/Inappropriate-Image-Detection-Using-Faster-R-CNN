@@ -3,7 +3,7 @@
 Program: Main
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Oct. 21, 2025
+Last Revised: Nov. 13, 2025
 
 Purpose: Entry point for the Flask application
 
@@ -58,8 +58,7 @@ image = (
 )
 
 flask_app = Flask(__name__)                          # Create Flask app
-flask_app.config["SECRET_KEY"] = os.getenv("CONFIG")  # Set config key
-flask_app.secret_key = os.getenv("SECRET_KEY")       # Set secret key
+flask_app.config["SECRET_KEY"] = os.getenv("CONFIG")  # Set config key for CSRF and Modal
 # Register routes blueprint
 flask_app.register_blueprint(routes_bp)
 

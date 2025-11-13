@@ -3,7 +3,7 @@
 Program: Routes
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Oct. 21, 2025
+Last Revised: Nov. 13, 2025
 
 Purpose: Handles image and video uploads and maps a specific URL for the frontend. 
 
@@ -43,8 +43,9 @@ bp = Blueprint("routes", __name__)  # Blueprint for routes
 # ANNOT_IMG_FOLDER = os.path.join("static", "annotated")
 
 # Modal folders
-UPLOAD_IMG_FOLDER = "root/static/uploads"
-ANNOT_IMG_FOLDER = "root/static/annotated"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_IMG_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
+ANNOT_IMG_FOLDER = os.path.join(BASE_DIR, "static", "annotated")
 
 os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
