@@ -38,11 +38,14 @@ from purify.realesrgan import RealESRGANWrapper
 
 bp = Blueprint("routes", __name__)  # Blueprint for routes
 
-# UPLOAD_IMG_FOLDER = os.path.join("static", "uploads")   # Local folders for uploaded images/videos
-# ANNOT_IMG_FOLDER = os.path.join("static", "annotated")  # Local folder for annotated images/videos
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_IMG_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
-ANNOT_IMG_FOLDER = os.path.join(BASE_DIR, "static", "annotated")
+# Local folders
+# UPLOAD_IMG_FOLDER = os.path.join("static", "uploads")  
+# ANNOT_IMG_FOLDER = os.path.join("static", "annotated")
+
+# Modal folders
+UPLOAD_IMG_FOLDER = "root/static/uploads"
+ANNOT_IMG_FOLDER = "root/static/annotated"
+
 os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
@@ -55,7 +58,7 @@ class CreatePost(FlaskForm):
         validators=[
             FileRequired(),
             FileAllowed(["jpg", "jpeg", "png", "mp4", "avi",
-                        "mov", "mp4v"], "Images/Videos only"),
+                        "mov", ".mp4v"], "Images/Videos only"),
         ],
     )
     reset = SubmitField("Reset")
