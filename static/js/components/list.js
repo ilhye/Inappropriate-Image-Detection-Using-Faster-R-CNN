@@ -25,7 +25,7 @@ const adv_def = [
   {
     title: "What is a harmful cloaked content?",
     description:
-      "This is any content designed to deceive or manipulate viewers, often with malicious intent. Examples include images or videos that have been altered to mislead viewers or hide harmful content. This type of content is possible due to adversarial attacks. </br><span class='font-bold'>Adversarial attacks</span>are techniques used to fool machine learning models by introducing subtle perturbations to the input data. These attacks can cause models to make incorrect predictions or classifications, posing significant challenges for the deployment of AI systems in real-world applications.",
+      "This is any content designed to deceive or manipulate viewers, often with malicious intent. Examples include images or videos that have been altered to mislead viewers or hide harmful content. This type of content is possible due to adversarial attacks. </br><span class='font-bold'>Adversarial attacks</span> are techniques used to fool machine learning models by introducing subtle perturbations to the input data. These attacks can cause models to make incorrect predictions or classifications, posing significant challenges for the deployment of AI systems in real-world applications.",
   },
   {
     title: "How does it work?",
