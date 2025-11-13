@@ -25,9 +25,6 @@ Data Structures and Controls:
 - Uses if-else condition for conduction function choice
 ===========================================================
 """
-import cv2
-from cv2.ximgproc import guidedFilter, anisotropicDiffusion
-from utils import *
 import numpy as np
 
 class Purifier:
@@ -35,14 +32,28 @@ class Purifier:
     def process(input_img):
         """Purify image using anisotropic diffusion"""
         # Convert input to numpy array if it's a PIL Image
-        orig_img = convert_to_np(input_img)
+        orig_img = np.array(input_img)
 
         # Anisotropic > Super-Resolution
         purified_img = Purifier.anisotropic(orig_img)
-        psnr_value = psnr(original=orig_img, purified=purified_img)
-
+        psnr_value = Purifier.psnr(original=orig_img, purified=purified_img)
         print(f"PSNR in: {psnr_value:.2f}dB")
         return purified_img
+
+    @staticmethod
+    def psnr(original:np.ndarray, purified: np.ndarray) -> float:
+        """Compute PSNR between two images
+            Args:
+                original: Original image as a NumPy array
+                purified: Purified image as a NumPy array
+            Returns:
+                PSNR value as a float
+        """
+        mse = np.mean((original.astype(np.float32) - purified.astype(np.float32)) ** 2)
+        if mse == 0:
+            return float("inf")
+        PIXEL_MAX = 255.0
+        return 20 * np.log10(PIXEL_MAX / np.sqrt(mse))
 
     # Remove noise while preserving edges
     @staticmethod

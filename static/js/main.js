@@ -1,18 +1,18 @@
 /**
-* ===========================================================
-* Program: Main JS Template
-* Programmer/s: Cristina C. Villasor
-* Date Written: Oct. 6, 2025
-* Last Revised: Oct. 13, 2025
-* 
-* Purpose: Handles reset display and preview of uploaded files.
-*          Also responsible for preventing the web page from reloading the whole page.
-*
-* Program Fits in the General System Design:
-* - Handles user interactions on the frontend
-* - Takes result from backend and displays it to user
-* ===========================================================
-*/
+ * ===========================================================
+ * Program: Main JS Template
+ * Programmer/s: Cristina C. Villasor
+ * Date Written: Oct. 6, 2025
+ * Last Revised: Nov. 14, 2025
+ *
+ * Purpose: Handles reset display and preview of uploaded files.
+ *          Also responsible for preventing the web page from reloading the whole page.
+ *
+ * Program Fits in the General System Design:
+ * - Handles user interactions on the frontend
+ * - Takes result from backend and displays it to user
+ * ===========================================================
+ */
 
 const fileUpload = document.getElementById("file-upload");
 
@@ -27,11 +27,17 @@ function showPreview(event) {
   const uploadLabel = document.getElementById("upload-label");
   const uploadIcon = document.getElementById("upload-icon");
   const resultImg = document.getElementById("result-image");
+  const resultVid = document.getElementById("result-video");
 
   // Clear previous result image if any
   if (resultImg) {
     resultImg.src = "#";
     resultImg.classList.add("hidden");
+  }
+
+  if (resultVid) {
+    resultVid.src = "#";
+    resultVid.classList.add("hidden");
   }
 
   const file = event.target.files[0];
@@ -69,6 +75,7 @@ function resetForm() {
   const previewImg = document.getElementById("preview-image");
   const previewVid = document.getElementById("preview-video");
   const resultImg = document.getElementById("result-image");
+  const resultVid = document.getElementById("result-video");
   const message = document.getElementById("server-message");
   const uploadIcon = document.getElementById("upload-icon");
   const spinner = document.getElementById("spinner");
@@ -106,6 +113,12 @@ function resetForm() {
   if (resultImg) {
     resultImg.src = "#";
     resultImg.classList.add("hidden");
+  }
+
+  // Reset result video
+  if (resultVid) {
+    resultVid.src = "#";
+    resultVid.classList.add("hidden");
   }
 
   // Reset message
