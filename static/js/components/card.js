@@ -11,6 +11,11 @@
  * - Handles user interactions on the frontend
  * - Takes result from backend and displays it to user
  * 
+ * Algorithm
+ * - If author and step length' is less than i, then continue the loop
+ * - If step is not equals to last step, add connection line otherwise skip
+ * - Insert the generated HTML into respective section in the HTML
+ * 
  * Data Structure and Controls:
  * - Used arrays of objects to store author and step information
  * - Used ternary operators for conditional rendering
