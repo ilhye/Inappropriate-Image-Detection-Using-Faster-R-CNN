@@ -80,6 +80,7 @@ const adv_type = [
   },
 ];
 
+// Function to generate navigation links
 const nav = () => {
   let nav = "";
 
@@ -96,6 +97,7 @@ const nav = () => {
   return nav;
 };
 
+// Function to generate description list
 const description = () => {
   let description = "";
 
@@ -109,6 +111,7 @@ const description = () => {
   return description;
 };
 
+// Function to generate adversarial type list
 const type = () => {
   let type = "";
 
@@ -123,6 +126,7 @@ const type = () => {
   return type;
 };
 
+// Render lists into HTML
 document.getElementById("nav-link").innerHTML = nav();
 document.getElementById("adv-definition").innerHTML = description();
 document.getElementById("adv-type").innerHTML = type();

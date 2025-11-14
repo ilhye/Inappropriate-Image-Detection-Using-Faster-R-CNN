@@ -73,6 +73,7 @@ const steps = [
   },
 ];
 
+// Function to generate author cards
 const auth_card = () => {
   let auth_card = "";
 
@@ -160,6 +161,7 @@ const auth_card = () => {
   return auth_card;
 };
 
+// Function to generate step cards
 const step_card = () => {
   let step_card = "";
 
@@ -211,6 +213,6 @@ const step_card = () => {
   return step_card;
 };
 
-console.log("tina");
+// Render cards into HTML
 document.getElementById("authors-info").innerHTML = auth_card();
 document.getElementById("steps").innerHTML = step_card();
