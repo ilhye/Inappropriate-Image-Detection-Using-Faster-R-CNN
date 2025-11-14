@@ -35,12 +35,9 @@ from PIL import Image
 from frcnn import detect_image, detect_video
 from purify.purification import Purifier
 from purify.realesrgan import RealESRGANWrapper
+from markupsafe import Markup
 
 bp = Blueprint("routes", __name__)  # Blueprint for routes
-
-# Local folders
-# UPLOAD_IMG_FOLDER = os.path.join("static", "uploads")  
-# ANNOT_IMG_FOLDER = os.path.join("static", "annotated")
 
 # Modal folders
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -84,7 +81,9 @@ def content_moderation():
         upload_path = os.path.join(UPLOAD_IMG_FOLDER, filename)
         annot_path = os.path.join(ANNOT_IMG_FOLDER, f"pred_{filename}")
         file.save(upload_path)
-        print(f"File type: {type(upload_path)}")
+        
+        if "UPLOADS_VOLUME" in current_app.config: # Commit uploads volume after saving
+            current_app.config["UPLOADS_VOLUME"].commit()
 
         # Get file extension
         ext = os.path.splitext(filename)[1].lower()
@@ -97,6 +96,9 @@ def content_moderation():
             result_img, class_names, score = detect_image(enhanced) # Object detection
             result_img.save(annot_path)                             # Save annotated image
 
+            if "ANNOT_VOLUME" in current_app.config: # Commit annot volume after saving annotated image
+                current_app.config["ANNOT_VOLUME"].commit()
+
             output_url = url_for(
                 "static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
@@ -104,20 +106,32 @@ def content_moderation():
             # Filter image based on the score
             if score_threshold < score:
                 os.remove(upload_path)
-                message = f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning"
+
+                if "UPLOADS_VOLUME" in current_app.config: # Commit after removal
+                    current_app.config["UPLOADS_VOLUME"].commit()
+
+                message = Markup(f"Contains Inappropriate content: {', '.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning")
             else:
                 message = "Content appears to be safe"
 
-        # Video processing: get frames -> purifiacation -> super-resolution -> object detection -> repeat
+        # Video processing: get frames -> purification -> super-resolution -> object detection -> repeat
         elif ext in [".mp4", ".avi", ".mov", ".mp4v"]:
             result_vid, class_names, scores = detect_video(upload_path, annot_path) # Object detection
+            
+            if "ANNOT_VOLUME" in current_app.config: # Commit annot volume after saving annotated image
+                current_app.config["ANNOT_VOLUME"].commit()
+
             output_url = url_for(
                 "static", filename=f"annotated/pred_{filename}")
 
             # Filter video based on the score
             if score_threshold < scores:
                 os.remove(upload_path)
-                message = f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning"
+
+                if "UPLOADS_VOLUME" in current_app.config: # Commit after removal
+                    current_app.config["UPLOADS_VOLUME"].commit()
+
+                message = Markup(f"Contains Inappropriate content: {', '.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning")
             else:
                 message = "Content appears to be safe"
 
