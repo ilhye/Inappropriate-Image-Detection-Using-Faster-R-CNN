@@ -1,3 +1,22 @@
+/**
+ * ===========================================================
+ * Program: Card JS Template
+ * Programmer/s: Cristina C. Villasor
+ * Date Written: Nov. 13, 2025
+ * Last Revised: Nov. 13, 2025
+ *
+ * Purpose: Handles generation of author and step cards and inserts them into HTML
+ * 
+ * Program Fits in the General System Design:
+ * - Handles user interactions on the frontend
+ * - Takes result from backend and displays it to user
+ * 
+ * Data Structure and Controls:
+ * - Used arrays of objects to store author and step information
+ * - Used ternary operators for conditional rendering
+ * - Used for loops to iterate through the arrays
+ * ===========================================================
+ */
 const authors = [
   {
     auth_name: "Ashley Faye J. Magcamit",

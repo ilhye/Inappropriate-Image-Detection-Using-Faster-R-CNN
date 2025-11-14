@@ -1,3 +1,21 @@
+/**
+ * ===========================================================
+ * Program: List JS Template
+ * Programmer/s: Cristina C. Villasor
+ * Date Written: Nov. 13, 2025
+ * Last Revised: Nov. 13, 2025
+ *
+ * Purpose: Handles generation of list and inserts them into HTML
+ * 
+ * Program Fits in the General System Design:
+ * - Handles creation of dynamic lists on the frontend
+ * - Used when the app runs
+ * 
+ * Data Structure and Controls:
+ * - Used arrays of objects to store list information
+ * - Used for loops to iterate through the arrays
+ * ===========================================================
+ */
 const nav_link = [
   {
     link: "#home",
