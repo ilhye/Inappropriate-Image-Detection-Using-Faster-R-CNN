@@ -1,3 +1,22 @@
+/**
+ * ===========================================================
+ * Program: Card JS Template
+ * Programmer/s: Cristina C. Villasor
+ * Date Written: Nov. 13, 2025
+ * Last Revised: Nov. 13, 2025
+ *
+ * Purpose: Handles generation of author and step cards and inserts them into HTML
+ * 
+ * Program Fits in the General System Design:
+ * - Handles user interactions on the frontend
+ * - Takes result from backend and displays it to user
+ * 
+ * Data Structure and Controls:
+ * - Used arrays of objects to store author and step information
+ * - Used ternary operators for conditional rendering
+ * - Used for loops to iterate through the arrays
+ * ===========================================================
+ */
 const authors = [
   {
     auth_name: "Ashley Faye J. Magcamit",
@@ -54,6 +73,7 @@ const steps = [
   },
 ];
 
+// Function to generate author cards
 const auth_card = () => {
   let auth_card = "";
 
@@ -141,6 +161,7 @@ const auth_card = () => {
   return auth_card;
 };
 
+// Function to generate step cards
 const step_card = () => {
   let step_card = "";
 
@@ -192,6 +213,6 @@ const step_card = () => {
   return step_card;
 };
 
-console.log("tina");
+// Render cards into HTML
 document.getElementById("authors-info").innerHTML = auth_card();
 document.getElementById("steps").innerHTML = step_card();

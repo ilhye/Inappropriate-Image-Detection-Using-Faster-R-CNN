@@ -1,3 +1,21 @@
+/**
+ * ===========================================================
+ * Program: List JS Template
+ * Programmer/s: Cristina C. Villasor
+ * Date Written: Nov. 13, 2025
+ * Last Revised: Nov. 13, 2025
+ *
+ * Purpose: Handles generation of list and inserts them into HTML
+ * 
+ * Program Fits in the General System Design:
+ * - Handles creation of dynamic lists on the frontend
+ * - Used when the app runs
+ * 
+ * Data Structure and Controls:
+ * - Used arrays of objects to store list information
+ * - Used for loops to iterate through the arrays
+ * ===========================================================
+ */
 const nav_link = [
   {
     link: "#home",
@@ -62,6 +80,7 @@ const adv_type = [
   },
 ];
 
+// Function to generate navigation links
 const nav = () => {
   let nav = "";
 
@@ -78,6 +97,7 @@ const nav = () => {
   return nav;
 };
 
+// Function to generate description list
 const description = () => {
   let description = "";
 
@@ -91,6 +111,7 @@ const description = () => {
   return description;
 };
 
+// Function to generate adversarial type list
 const type = () => {
   let type = "";
 
@@ -105,6 +126,7 @@ const type = () => {
   return type;
 };
 
+// Render lists into HTML
 document.getElementById("nav-link").innerHTML = nav();
 document.getElementById("adv-definition").innerHTML = description();
 document.getElementById("adv-type").innerHTML = type();

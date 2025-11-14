@@ -5,11 +5,12 @@ This project aims to detect inappropriate content in images using a pre-trained 
 - Uses Faster R-CNN for object detection
 - Filter inappropriate classes
 - Image annotation and visualization for results
+- Purify adversarial example
 
 ## 🧠 Models
 - [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN) - image enhancement
-- [ResNet50](https://github.com/tensorflow/models/blob/master/research/object_detection/configs/tf2/faster_rcnn_resnet50_v1_800x1333_coco17_gpu-8.config?fbclid=IwY2xjawK42MRleHRuA2FlbQIxMQABHlxnvp0hbHGu3sVw1fxfU8CEt6Vi89VKTLk8g-PFRmYqrDruKtNJjuTRby6B_aem_D9Z88sdQUl9KzVXh50sWpA) - backbone architecture
 - [Faster R-CNN](https://arxiv.org/abs/1506.01497) - main detection model
+- [ResNet50](https://github.com/tensorflow/models/blob/master/research/object_detection/configs/tf2/faster_rcnn_resnet50_v1_800x1333_coco17_gpu-8.config?fbclid=IwY2xjawK42MRleHRuA2FlbQIxMQABHlxnvp0hbHGu3sVw1fxfU8CEt6Vi89VKTLk8g-PFRmYqrDruKtNJjuTRby6B_aem_D9Z88sdQUl9KzVXh50sWpA) - backbone architecture
 
 ## 🗂️ Datasets
 To maintain class balance, 10K images were selected from each dataset (20K total).
@@ -31,14 +32,10 @@ Using RoboFlow, we applied data augmentation (horizontal/vertical flips), expand
         ```bash
         pip install -r requirements.txt
          ```
-    - Using Modal (serverless)
-        ```bash 
-        modal serve main.py
-        ```
-4. Install node modules
-   ```bash
-   npm install
-   ```
+4. Setup modal
+    ```bash
+    python -m modal setup
+    ```
 5. Run the application
     - Local
         ```bash
@@ -49,5 +46,5 @@ Using RoboFlow, we applied data augmentation (horizontal/vertical flips), expand
         modal serve main.py
         ```
 
-## 🙌 Credits
-Inspired by [snapscope](https://github.com/ErolGelbul/snapscope), developed by Erol Gelbul. We acknowledge its influence in the development of our approach and thank the author for the foundational work.
+## 🙌 Acknowledgements
+We acknowledge the original development of Real-ESRGAN by [Xintao Wang, Liangbin Xie, Chao Dong, and Ying Shan](https://github.com/xinntao/Real-ESRGAN). We also recognize the partial implementation and contributions provided by [Igor Pavlov, Alex Wortoga, and Emily](https://github.com/ai-forever/Real-ESRGAN).
