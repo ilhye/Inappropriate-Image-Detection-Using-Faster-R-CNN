@@ -3,7 +3,7 @@
 Program: Routes
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 13, 2025
+Last Revised: Nov. 14, 2025
 
 Purpose: Handles image and video uploads and maps a specific URL for the frontend. 
 
@@ -25,7 +25,6 @@ Data Structures and Controls:
 """
 import os
 import torch
-
 from flask import Blueprint, render_template, request, url_for, current_app
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired
@@ -39,11 +38,9 @@ from markupsafe import Markup
 
 bp = Blueprint("routes", __name__)  # Blueprint for routes
 
-# Modal folders
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_IMG_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 ANNOT_IMG_FOLDER = os.path.join(BASE_DIR, "static", "annotated")
-
 os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
@@ -70,9 +67,6 @@ def content_moderation():
     message = ""             # For displaying safe/inappropriate message
     score_threshold = 0.8    # Final threshold after VQA and object detection
 
-    text = request.values.get('button_text')
-    print(f"Button text: {text}")
-
     if request.method == "POST" and form.validate_on_submit():
         file = request.files.get("uploadImg")
         filename = secure_filename(file.filename)
@@ -81,9 +75,11 @@ def content_moderation():
         upload_path = os.path.join(UPLOAD_IMG_FOLDER, filename)
         annot_path = os.path.join(ANNOT_IMG_FOLDER, f"pred_{filename}")
         file.save(upload_path)
-        
-        if "UPLOADS_VOLUME" in current_app.config: # Commit uploads volume after saving
+
+        # Commit uploads volume after saving
+        if "UPLOADS_VOLUME" in current_app.config:
             current_app.config["UPLOADS_VOLUME"].commit()
+            current_app.config["ANNOT_VOLUME"].reload()
 
         # Get file extension
         ext = os.path.splitext(filename)[1].lower()
@@ -98,40 +94,49 @@ def content_moderation():
 
             if "ANNOT_VOLUME" in current_app.config: # Commit annot volume after saving annotated image
                 current_app.config["ANNOT_VOLUME"].commit()
+                current_app.config["ANNOT_VOLUME"].reload()
 
-            output_url = url_for(
-                "static", filename=f"annotated/pred_{filename}")
+            output_url = url_for("static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
 
-            # Filter image based on the score
+            # Filter image based on the scor
             if score_threshold < score:
                 os.remove(upload_path)
 
-                if "UPLOADS_VOLUME" in current_app.config: # Commit after removal
+                if "UPLOADS_VOLUME" in current_app.config:  # Commit after removal
                     current_app.config["UPLOADS_VOLUME"].commit()
+                    current_app.config["ANNOT_VOLUME"].reload()
 
-                message = Markup(f"Contains Inappropriate content: {', '.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning")
+                message = Markup(
+                    f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}<br><br>"
+                    f"Suggested Actions: Content Removal or User Warning"
+                )
             else:
                 message = "Content appears to be safe"
 
         # Video processing: get frames -> purification -> super-resolution -> object detection -> repeat
         elif ext in [".mp4", ".avi", ".mov", ".mp4v"]:
-            result_vid, class_names, scores = detect_video(upload_path, annot_path) # Object detection
-            
-            if "ANNOT_VOLUME" in current_app.config: # Commit annot volume after saving annotated image
-                current_app.config["ANNOT_VOLUME"].commit()
+            result_vid, class_names, scores = detect_video(
+                upload_path, annot_path)
 
-            output_url = url_for(
-                "static", filename=f"annotated/pred_{filename}")
+            if "ANNOT_VOLUME" in current_app.config: # Commit annot volume after video processing
+                current_app.config["ANNOT_VOLUME"].commit()
+                current_app.config["ANNOT_VOLUME"].reload()
+
+            output_url = url_for("static", filename=f"annotated/pred_{filename}")
 
             # Filter video based on the score
             if score_threshold < scores:
                 os.remove(upload_path)
 
-                if "UPLOADS_VOLUME" in current_app.config: # Commit after removal
+                if "UPLOADS_VOLUME" in current_app.config:  # Commit after removal
                     current_app.config["UPLOADS_VOLUME"].commit()
-
-                message = Markup(f"Contains Inappropriate content: {', '.join(list(dict.fromkeys(class_names)))}\nSuggested Actions: Content Removal or User Warning")
+                    current_app.config["ANNOT_VOLUME"].reload()
+                    
+                message = Markup(
+                    f"Contains Inappropriate content: {','.join(list(dict.fromkeys(class_names)))}<br><br>"
+                    f"Suggested Actions: Content Removal or User Warning"
+                )
             else:
                 message = "Content appears to be safe"
 
