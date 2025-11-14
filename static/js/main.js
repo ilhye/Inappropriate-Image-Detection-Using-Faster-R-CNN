@@ -11,6 +11,11 @@
  * Program Fits in the General System Design:
  * - Handles user interactions on the frontend
  * - Takes result from backend and displays it to user
+ * 
+ * Algorithm
+ * - If user uploads a file, show preview
+ * - If user click reset button, clear inputs and hide preview
+ * - If user submits form, use Ajax to send data and update result section without reloading page
  * ===========================================================
  */
 

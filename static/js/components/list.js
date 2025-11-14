@@ -11,6 +11,10 @@
  * - Handles creation of dynamic lists on the frontend
  * - Used when the app runs
  * 
+ * Algorithm
+ * - If navlinks/description/type length' is less than i, then continue the loop and create dynamic HTML
+ * - Insert the generated HTML into respective section in the HTML
+ * 
  * Data Structure and Controls:
  * - Used arrays of objects to store list information
  * - Used for loops to iterate through the arrays
