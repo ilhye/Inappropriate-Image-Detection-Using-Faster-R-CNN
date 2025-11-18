@@ -24,7 +24,6 @@ Data Structures and Controls:
 ===========================================================
 """
 import os
-import torch
 from flask import Blueprint, render_template, request, url_for, current_app
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed, FileRequired

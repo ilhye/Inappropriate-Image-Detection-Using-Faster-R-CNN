@@ -45,6 +45,8 @@ Using RoboFlow, we applied data augmentation (horizontal/vertical flips), expand
         ```bash 
         modal serve main.py
         ```
+> **Note**: This requires ffmpeg to be installed in your local machine. 
+> You can get it here [FFmpeg Download](https://ffmpeg.org/download.html#build-windows)
 
 ## 🙌 Acknowledgements
 We acknowledge the original development of Real-ESRGAN by [Xintao Wang, Liangbin Xie, Chao Dong, and Ying Shan](https://github.com/xinntao/Real-ESRGAN). We also recognize the partial implementation and contributions provided by [Igor Pavlov, Alex Wortoga, and Emily](https://github.com/ai-forever/Real-ESRGAN).

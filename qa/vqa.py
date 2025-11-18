@@ -24,10 +24,8 @@ Data Structures and Controls:
 - Uses if-else condition to switch condition
 ===========================================================
 """
-import io
 import numpy as np
 import os
-import torch
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
