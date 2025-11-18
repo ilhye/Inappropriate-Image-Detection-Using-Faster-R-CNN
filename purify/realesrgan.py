@@ -33,11 +33,15 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class RealESRGANWrapper:
     @staticmethod
     def enhance(image: Image.Image):
-        print("Enter enhance")
-        load = RealESRGANWrapper.load_model(device=DEVICE)
-        print("Loaded model, will return")
-        return RealESRGANWrapper.run_sr(load, image)
-
+        try:
+            print("Enter enhance")
+            load = RealESRGANWrapper.load_model(device=DEVICE)
+            print("Loaded model, will return")
+            return RealESRGANWrapper.run_sr(load, image)
+        except Exception as e:
+            print(f"Error in enhance: {e}")
+            raise
+        
     @staticmethod
     def load_model(model_path="models/RealESRGAN_x2.pth", scale=2, device=DEVICE):
         """Load the pretrained model
