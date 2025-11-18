@@ -3,7 +3,7 @@
 Program: FRCNN
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 18, 2025
+Last Revised: Nov. 19, 2025
 
 Purpose: Handles object detection using Faster R-CNN with custom classes.
 
@@ -49,11 +49,16 @@ def get_model(weights_path="models/content_mod.pth", num_classes=11):
     Returns:
         model (torch.nn.Module): Loaded model in eval mode
     """
-    model = fasterrcnn_resnet50_fpn(weights=None)
-    in_features = model.roi_heads.box_predictor.cls_score.in_features
-    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
-    model.load_state_dict(torch.load(weights_path, map_location=DEVICE))
-    return model.to(DEVICE).eval()
+    try:
+        model = fasterrcnn_resnet50_fpn(weights=None)
+        in_features = model.roi_heads.box_predictor.cls_score.in_features
+        model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
+        model.load_state_dict(torch.load(weights_path, map_location=DEVICE))
+    
+        return model.to(DEVICE).eval()
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        raise
 
 _MODEL = get_model() # Load the model
 
@@ -122,14 +127,18 @@ def mp4_to_h264(input_path):
     """
     h264_path =input_path.replace(".mp4", "_h264.mp4") # Replace .mp4 with _h264.mp4
 
-    subprocess.run([                                   # Run ffmpeg command
-        "ffmpeg", "-y", "-i", input_path,              # -y: overwrite files, i: input file
-        "-c:v", "libx264",                             # Re-encode mp4 to h264
-        "-c:a", "aac",                                 # Re-encode audio to aac
-        h264_path
-    ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-
-    return h264_path
+    try:
+        subprocess.run([                                   # Run ffmpeg command
+            "ffmpeg", "-y", "-i", input_path,              # -y: overwrite files, i: input file
+            "-c:v", "libx264",                             # Re-encode mp4 to h264
+            "-c:a", "aac",                                 # Re-encode audio to aac
+            h264_path
+        ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        
+        return h264_path
+    except Exception as e:
+        print(f"Error converting video: {e}")
+        raise
 
 def detect_video(input_path, output_path):
     """Detect objects in a video at 1 FPS
