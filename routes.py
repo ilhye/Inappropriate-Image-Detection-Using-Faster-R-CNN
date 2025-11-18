@@ -3,7 +3,7 @@
 Program: Routes
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 14, 2025
+Last Revised: Nov. 18, 2025
 
 Purpose: Handles image and video uploads and maps a specific URL for the frontend. 
 
@@ -44,8 +44,6 @@ ANNOT_IMG_FOLDER = os.path.join(BASE_DIR, "static", "annotated")
 os.makedirs(UPLOAD_IMG_FOLDER, exist_ok=True)
 os.makedirs(ANNOT_IMG_FOLDER, exist_ok=True)
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
 # Input form for uploading video and image
 class CreatePost(FlaskForm):
     uploadImg = FileField(
@@ -63,7 +61,7 @@ class CreatePost(FlaskForm):
 @bp.route("/", methods=["GET", "POST"])
 def content_moderation():
     form = CreatePost()      # Input form instance
-    output_url = None         # For displaying annotated media
+    output_url = None        # For displaying annotated media
     message = ""             # For displaying safe/inappropriate message
     score_threshold = 0.8    # Final threshold after VQA and object detection
 
@@ -119,13 +117,14 @@ def content_moderation():
                 current_app.config["ANNOT_VOLUME"].commit()
                 current_app.config["ANNOT_VOLUME"].reload()
 
-            output_url = url_for("static", filename=f"annotated/pred_{filename}")
+            output_url = url_for("static", filename="annotated/" + os.path.basename(result_vid))
 
             # Filter video based on the score
             if score_threshold < scores: 
                 os.remove(upload_path)
                 if "UPLOADS_VOLUME" in current_app.config:
-                                    current_app.config["UPLOADS_VOLUME"].commit()
+                    current_app.config["UPLOADS_VOLUME"].commit()
+                
                 message = Markup(
                     f"Contains Inappropriate content: <strong>{','.join(list(dict.fromkeys(class_names)))}</strong><br>"
                     f"Suggested Actions: Content Removal or User Warning"
