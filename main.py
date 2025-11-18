@@ -3,7 +3,7 @@
 Program: Main
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 14, 2025
+Last Revised: Nov. 18, 2025
 
 Purpose: Entry point for the Flask application
 
@@ -29,7 +29,7 @@ annot_volume = modal.Volume.from_name("annot-storage", create_if_missing=True)
 # Create dependencies
 image = (
     modal.Image.debian_slim(python_version="3.11")
-    .apt_install("libgl1", "libglib2.0-0")
+    .apt_install("libgl1", "libglib2.0-0", "ffmpeg")
     .pip_install(
         "flask",
         "flask-wtf",
