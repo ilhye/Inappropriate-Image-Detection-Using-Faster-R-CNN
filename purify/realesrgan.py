@@ -3,7 +3,7 @@
 Program: Real-ESRGAN
 Programmer/s: Cristina C. Villasor
 Date Written: Oct. 5, 2025
-Last Revised: Oct. 5, 2025
+Last Revised: Nov. 19, 2025
 
 Purpose: Finalizes the purification process by enhancing the image resolution using Real-ESRGAN model.
 
@@ -41,7 +41,7 @@ class RealESRGANWrapper:
         except Exception as e:
             print(f"Error in enhance: {e}")
             raise
-        
+
     @staticmethod
     def load_model(model_path="models/RealESRGAN_x2.pth", scale=2, device=DEVICE):
         """Load the pretrained model
