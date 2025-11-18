@@ -3,7 +3,7 @@
 Program: VQA
 Programmer/s: Catherine Joy R. Pailden and Cristina C. Villasor
 Date Written: Oct 11, 2025
-Last Revised: Nov. 13, 2025
+Last Revised: Nov. 18, 2025
 
 Purpose: Verify if the image contains inappropriate content and create the final score.
 
@@ -93,12 +93,8 @@ def decision(classes, answers, vqa_confidences, detection_score):
     # Weighted average ensemble
     total_score = (vqa_weight * harmful_avg) + (det_weight * detection_component)
 
-    if isinstance(total_score, torch.Tensor):
-        # Move to CPU, ensure float
-        total_score = float(torch.clamp(total_score, 0.0, 1.0).item())
-    else:
-        total_score = float(np.clip(total_score, 0.0, 1.0))
-        
+    total_score = float(np.clip(total_score, 0.0, 1.0))
+
     print("Total score:", total_score)
 
     return total_score
@@ -131,12 +127,18 @@ def obj_detection_conf(detection_score, classes):
     """
     Calculate detection component with COCO class boost
     Args:
-        detection_score (float): Highest confidence score from Faster R-CNN detections
+        detection_score (list): Highest confidence score from Faster R-CNN detections
         classes (list): List of detected class names from Faster R-CNN
     Returns:
-        detection_component (float/tensor): Adjusted detection confidence score
+        detection_component (float): Adjusted detection confidence score
     """
+    # Boost score if there are detected classes
     coco_boost = 0.15 if any(name in COCO_CLASSES.values() for name in classes) else 0.0
-    detection_component = min(detection_score + coco_boost, 1.0)
-    print("Detection component:", detection_component)
+
+    # Take maximum score from detection
+    base_score = max(detection_score) if isinstance(detection_score, list) and detection_score else float(detection_score) if detection_score else 0.0
+
+    # Make sure the final score does not exceed 1.0 
+    detection_component = min(base_score + coco_boost, 1.0)
+    
     return detection_component

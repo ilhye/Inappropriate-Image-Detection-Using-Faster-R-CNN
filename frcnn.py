@@ -3,7 +3,7 @@
 Program: FRCNN
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 14, 2025
+Last Revised: Nov. 18, 2025
 
 Purpose: Handles object detection using Faster R-CNN with custom classes.
 
@@ -27,7 +27,7 @@ Data Structures and Controls:
 import torch
 import cv2
 import numpy as np
-import os 
+import subprocess
 
 from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
@@ -66,12 +66,14 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
         pil_img (PIL.Image): Image with bounding boxes drawn
         predicted_classes (list): List of detected class names
     """
-    img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE)  # Convert PIL to tensor and add batch dimension
+    # Convert PIL to tensor and add batch dimension
+    img_tensor = F.to_tensor(pil_img).unsqueeze(0).to(DEVICE)
 
     with torch.no_grad(): # Disable gradient calculation for inference
         pred = _MODEL(img_tensor)[0]
 
     predicted_classes = []
+    predicted_scores = []
 
     draw = ImageDraw.Draw(pil_img) # For drawing boxes
 
@@ -83,17 +85,17 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
             continue
         xmin, ymin, xmax, ymax = map(int, box) # Convert to int for drawing
 
-        # Display class name
         class_name = COCO_CLASSES.get(label.item(), "Unknown")
         predicted_classes.append(class_name)
-        print(f"Detected classes: {predicted_classes}, Scores: {score}")
+        predicted_scores.append(float(score))
 
-        score_pred = score
+        print(f"Detected classes: {predicted_classes}, Scores: {predicted_scores}")
+
 
         draw.rectangle([xmin, ymin, xmax, ymax], outline="blue", width=2)
         draw.text((xmin, ymin), f"{class_name} ({score:.2f})", fill="blue", font=_FONT)
 
-    return pil_img, predicted_classes, score_pred
+    return pil_img, predicted_classes, predicted_scores
 
 def detect_image(input_img):
     """Detect objects in an image 
@@ -105,11 +107,29 @@ def detect_image(input_img):
         class_names (list): List of detected class names
         total_score (float): Final score after VQA and object detection
     """
-    annotated_img, class_names, scores = draw_boxes(input_img.copy())
-    answers, confidences = vqa.get_answer(input_img)
-    total_score = vqa.decision(class_names, answers, confidences, scores)
+    annotated_img, class_names, scores = draw_boxes(input_img.copy())     # Object detection
+    answers, confidences = vqa.get_answer(input_img)                      # VQA
+    total_score = vqa.decision(class_names, answers, confidences, scores) # Compute final score
     
     return annotated_img, class_names, total_score
+
+def mp4_to_h264(input_path):
+    """Re-encode video from mp4 to h264 making it compatible playing in browsers
+    Args: 
+        input_path (str): Path of video to convert
+    Returns:
+        h264_path (str): Path of converted video
+    """
+    h264_path =input_path.replace(".mp4", "_h264.mp4") # Replace .mp4 with _h264.mp4
+
+    subprocess.run([                                   # Run ffmpeg command
+        "ffmpeg", "-y", "-i", input_path,              # -y: overwrite files, i: input file
+        "-c:v", "libx264",                             # Re-encode mp4 to h264
+        "-c:a", "aac",                                 # Re-encode audio to aac
+        h264_path
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+    return h264_path
 
 def detect_video(input_path, output_path):
     """Detect objects in a video at 1 FPS
@@ -126,24 +146,15 @@ def detect_video(input_path, output_path):
 
     # Get input video properties
     input_fps = cap.get(cv2.CAP_PROP_FPS)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    # Try different codecs for better compatibility
-    for codec in ['mp4v', 'avc1', 'H264']:
-        fourcc = cv2.VideoWriter_fourcc(*codec)
-        out = cv2.VideoWriter(output_path, fourcc, input_fps, (width, height))
-        if out.isOpened():
-            print(f"Using codec: {codec}")
-            break
-    else:
-        print("ERROR: Could not initialize video writer with any codec")
-        cap.release()
-        return output_path, [], 0.0
-
-    frame_idx = 0
-    detected_classes = []
-    all_scores = []
+    out = cv2.VideoWriter(output_path, fourcc, input_fps, (width, height))
+   
+    frame_idx = 0          # Frame counter
+    detected_classes = []  # Store detected classes
+    all_scores = []        # Store all scores from detection
 
     while True:
         ret, frame = cap.read()
@@ -154,18 +165,30 @@ def detect_video(input_path, output_path):
         if frame_idx % 10 == 0:
             # Convert frame to PIL image
             pil_frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            
+            # Purification
+            purified = Purifier.process(pil_frame)
 
-            purified = Purifier.process(pil_frame)                    # Purification
-            sr_frame = RealESRGANWrapper.enhance(purified)            # Super-resolution
-            annotated_frame, class_names, scores = draw_boxes(sr_frame) # Object detection
-            detected_classes.extend(class_names)                      # Append detected classes  
-            answers, confidences = vqa.get_answer(sr_frame)           # VQA
-            frame_score = vqa.decision(class_names, answers, confidences, scores) # Final score
+            # Super-resolution
+            sr_frame = RealESRGANWrapper.enhance(purified)
+
+            # Object detection
+            annotated_frame, class_names, scores = draw_boxes(sr_frame)
+            print("Classes name", class_names)
+            detected_classes.extend(class_names) # Append detected classes
+
+            # VQA
+            answers, confidences = vqa.get_answer(sr_frame)
+
+            # Compute final score
+            frame_score = vqa.decision(detected_classes, answers, confidences, scores)
             all_scores.append(frame_score)
 
             # Convert back to OpenCV and write annotated frame
             annotated_cv2 = cv2.cvtColor(np.array(annotated_frame), cv2.COLOR_RGB2BGR)
             annotated_cv2 = cv2.resize(annotated_cv2, (width, height))
+
+            # Write annotated frame to output video
             out.write(annotated_cv2)
         else:
             # Write original frame (no annotation) to maintain video timing
@@ -177,7 +200,9 @@ def detect_video(input_path, output_path):
     cap.release()
     out.release()
 
+    output_path = mp4_to_h264(output_path) 
+
     total_score = max(all_scores) if all_scores else 0.0
-    print("Total score:", total_score)
+    print(f"Total score: {total_score}")
 
     return output_path, detected_classes, total_score
