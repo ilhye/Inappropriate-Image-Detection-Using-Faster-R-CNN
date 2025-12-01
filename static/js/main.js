@@ -2,13 +2,14 @@
  * ===========================================================
  * Program: Main JS Template
  * Programmer/s: Cristina C. Villasor
- * Date Written: Oct. 6, 2025
- * Last Revised: Nov. 14, 2025
+ * Date Written: June 18, 2025
+ * Last Revised: Oct. 21, 2025
  *
  * Purpose: Handles reset display and preview of uploaded files.
  *          Also responsible for preventing the web page from reloading the whole page.
  *
  * Program Fits in the General System Design:
+ * - Starts process when user uploads a file, submits the form, or resets the form
  * - Handles user interactions on the frontend
  * - Takes result from backend and displays it to user
  * 

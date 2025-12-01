@@ -1,13 +1,14 @@
 """
 ===========================================================
-Program: Model
+Program: Utils
 Programmer/s: Ashley Faye J. Magcamit and Alexandre C. Pornea
 Date Written: Sept. 24, 2025
 Last Revised: Oct. 6, 2025
 
 Purpose: Reusable functions for Real-ESRGAN model
 
-Program Fits in the General System Design: It is used when realesrgan calls for the predict()
+Program Fits in the General System Design: 
+- It is used when realesrgan calls for the predict()
 
 Credits:
 - Code sourced directly from Igor Pavlov, Alex Wortoga, and Emily's GitHub repository: https://github.com/ai-forever/Real-ESRGAN
@@ -36,7 +37,6 @@ def pad_reflect(image, pad_size):
 def unpad_image(image, pad_size):
     return image[pad_size:-pad_size, pad_size:-pad_size, :]
 
-
 def process_array(image_array, expand=True):
     """ Process a 3-dimensional array into a scaled, 4 dimensional batch of size 1. """
     
@@ -45,14 +45,12 @@ def process_array(image_array, expand=True):
         image_batch = np.expand_dims(image_batch, axis=0)
     return image_batch
 
-
 def process_output(output_tensor):
     """ Transforms the 4-dimensional output tensor into a suitable image format. """
     
     sr_img = output_tensor.clip(0, 1) * 255
     sr_img = np.uint8(sr_img)
     return sr_img
-
 
 def pad_patch(image_patch, padding_size, channel_last=True):
     """ Pads image_patch with with padding_size edge values. """
@@ -70,10 +68,8 @@ def pad_patch(image_patch, padding_size, channel_last=True):
             'edge',
         )
 
-
 def unpad_patches(image_patches, padding_size):
     return image_patches[:, padding_size:-padding_size, padding_size:-padding_size, :]
-
 
 def split_image_into_overlapping_patches(image_array, patch_size, padding_size=2):
     """ Splits the image into partially overlapping patches.

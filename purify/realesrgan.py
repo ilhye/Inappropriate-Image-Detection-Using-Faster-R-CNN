@@ -1,7 +1,7 @@
 """
 ===========================================================
-Program: Real-ESRGAN
-Programmer/s: Cristina C. Villasor
+Program: Real-ESRGAN Wrapper
+Programmer/s: Ashley Faye J. Magcamit and Alexandre C. Pornea
 Date Written: Oct. 5, 2025
 Last Revised: Nov. 19, 2025
 
@@ -19,8 +19,6 @@ Algorithm:
 """
 import torch
 from PIL import Image
-import numpy as np
-import cv2
 import sys
 import os
 
