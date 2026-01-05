@@ -11,12 +11,15 @@ Program Fits in the General System Design:
 - Detects objects in images/videos after purification and super-resolution
 - Provides annotated media with bounding boxes and class names
 - Helps determine whether the media contains inappropriate content
+- Use after purification and super-resolution modules
+- Then, passes results to VQA module for final decision-making
 
 Algorithm: 
 - Takes input from routes 
 - Initialize Faster R-CNN with ResNet-50 backbone and load pre-trained model
 - If image, uses detect_image(), then calls draw_boxes() to get detected classes and annotated images
-- If video, uses detect_video() on every 10th frame. Each frame undergoes purification and super-resolution before the object detection. After processing all frames, resources are released and final output is saved in the annotated folder.
+- If video, uses detect_video() on every 10th frame. Each frame undergoes purification and super-resolution before the object detection. 
+- After processing all frames, resources are released and final output is saved in the annotated folder.
 - Each detection will undergo VQA, then a final score will be created.
 
 Data Structures and Controls: 
@@ -81,8 +84,6 @@ def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
     predicted_scores = []
 
     draw = ImageDraw.Draw(pil_img) # For drawing boxes
-
-    score_pred = 0
 
     # Draw boxes for each detected object
     for box, label, score in zip(pred["boxes"], pred["labels"], pred["scores"]):

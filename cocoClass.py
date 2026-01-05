@@ -1,3 +1,20 @@
+"""
+===========================================================
+Program: cocoClass.py
+Programmer/s: Cristina C. Villasor
+Date Written: June 15, 2025
+Last Revised: Nov. 19, 2025
+
+Purpose: Custom COCO classes for inappropriate content detection.
+
+Program Fits in the General System Design:
+- Use when frcnn.py starts the object detection process
+- Provides class names for detected objects
+
+Data Structures and Controls: 
+- Uses a list for storing classes
+===========================================================
+"""
 COCO_CLASSES = { 1: "alcohol",
     2: "anus",
     3: "blood",

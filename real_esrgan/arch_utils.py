@@ -153,7 +153,6 @@ def flow_warp(x, flow, interp_mode='bilinear', padding_mode='zeros', align_corne
     vgrid_scaled = torch.stack((vgrid_x, vgrid_y), dim=3)
     output = F.grid_sample(x, vgrid_scaled, mode=interp_mode, padding_mode=padding_mode, align_corners=align_corners)
 
-    # TODO, what if align_corners=False
     return output
 
 
@@ -194,8 +193,6 @@ def resize_flow(flow, size_type, sizes, interp_mode='bilinear', align_corners=Fa
         input=input_flow, size=(output_h, output_w), mode=interp_mode, align_corners=align_corners)
     return resized_flow
 
-
-# TODO: may write a cpp file
 def pixel_unshuffle(x, scale):
     """ Pixel unshuffle.
 

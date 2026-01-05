@@ -8,8 +8,9 @@
  * Purpose: Handles generation of author and step cards and inserts them into HTML
  * 
  * Program Fits in the General System Design:
- * - Handles user interactions on the frontend
- * - Takes result from backend and displays it to user
+ * - Use when the app runs
+ * - Generates dynamic author and step cards on the frontend
+ * - Takes result from backend routes.py and displays it to user
  * 
  * Algorithm
  * - If author and step length' is less than i, then continue the loop

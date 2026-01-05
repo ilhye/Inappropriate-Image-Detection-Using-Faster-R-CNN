@@ -30,7 +30,12 @@ import numpy as np
 class Purifier:
     @staticmethod
     def process(input_img):
-        """Purify image using anisotropic diffusion"""
+        """Purify image using anisotropic diffusion
+        Args:
+            input_img: Image to purify
+        Returns:
+            purified_img: Purified image
+        """
         # Convert input to numpy array if it's a PIL Image
         orig_img = np.array(input_img)
 

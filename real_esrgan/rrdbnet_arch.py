@@ -1,6 +1,6 @@
 """
 ===========================================================
-Program: Model
+Program: RRDBNet Architecture
 Programmer/s: Ashley Faye J. Magcamit and Alexandre C. Pornea
 Date Written: Sept. 24, 2025
 Last Revised: Oct. 6, 2025
@@ -9,7 +9,8 @@ Purpose: The Residual Dense Block (RDB) is responsible for extracting features f
          While the Residual in Residual Dense Block (RRDB) combines these with residual 
          connections to enhance learning.
 
-Program Fits in the General System Design: This is used for defining RRDBNet architecture in the model module.
+Program Fits in the General System Design: 
+- This is used for defining RRDBNet architecture in the model module.
 
 Algorithm: 
 - Split images into overlapping patches
@@ -27,7 +28,6 @@ from torch import nn as nn
 from torch.nn import functional as F
 
 from .arch_utils import default_init_weights, make_layer, pixel_unshuffle
-
 
 class ResidualDenseBlock(nn.Module):
     """Residual Dense Block.
