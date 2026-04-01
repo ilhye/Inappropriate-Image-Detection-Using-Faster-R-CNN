@@ -3,7 +3,7 @@
 Program: FRCNN
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 19, 2025
+Last Revised: April 1, 2026
 
 Purpose: Handles object detection using Faster R-CNN with custom classes.
 
@@ -65,7 +65,7 @@ def get_model(weights_path="models/content_mod.pth", num_classes=11):
 
 _MODEL = get_model() # Load the model
 
-def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.7) -> Image.Image:
+def draw_boxes(pil_img: Image.Image, score_thresh: float = 0.5) -> Image.Image:
     """ Output media with bounding boxes and their classes
     Args:
         pil_img (PIL.Image): Input image from the routes.py
