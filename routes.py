@@ -3,7 +3,7 @@
 Program: Routes
 Programmer/s: Cristina C. Villasor
 Date Written: June 15, 2025
-Last Revised: Nov. 18, 2025
+Last Revised: April 1, 2026
 
 Purpose: Handles image and video uploads and maps a specific URL for the frontend. 
 
@@ -62,7 +62,7 @@ def content_moderation():
     form = CreatePost()      # Input form instance
     output_url = None        # For displaying annotated media
     message = ""             # For displaying safe/inappropriate message
-    score_threshold = 0.8    # Final threshold after VQA and object detection
+    score_threshold = 0.5    # Final threshold after VQA and object detection
 
     if request.method == "POST" and form.validate_on_submit():
         file = request.files.get("uploadImg")
@@ -90,10 +90,6 @@ def content_moderation():
             output_url = url_for("static", filename=f"annotated/pred_{filename}")
             print("Detected:", class_names)
 
-            if "ANNOT_VOLUME" in current_app.config:
-                current_app.config["ANNOT_VOLUME"].commit()
-                current_app.config["ANNOT_VOLUME"].reload()
-
             # Filter image based on the scor
             if score_threshold < score:
                 
@@ -111,10 +107,6 @@ def content_moderation():
         elif ext in [".mp4", ".avi", ".mov", ".mp4v"]:
             result_vid, class_names, scores = detect_video(
                 upload_path, annot_path)
-            
-            if "ANNOT_VOLUME" in current_app.config:
-                current_app.config["ANNOT_VOLUME"].commit()
-                current_app.config["ANNOT_VOLUME"].reload()
 
             output_url = url_for("static", filename="annotated/" + os.path.basename(result_vid))
 

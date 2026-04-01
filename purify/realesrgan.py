@@ -3,7 +3,7 @@
 Program: Real-ESRGAN Wrapper
 Programmer/s: Ashley Faye J. Magcamit and Alexandre C. Pornea
 Date Written: Oct. 5, 2025
-Last Revised: Nov. 19, 2025
+Last Revised: April, 1, 2026
 
 Purpose: Finalizes the purification process by enhancing the image resolution using Real-ESRGAN model.
 
@@ -41,7 +41,7 @@ class RealESRGANWrapper:
             raise
 
     @staticmethod
-    def load_model(model_path="models/RealESRGAN_x2.pth", scale=2, device=DEVICE):
+    def load_model(model_path="models/RealESRGAN_x4.pth", scale=4, device=DEVICE):
         """Load the pretrained model
         Args:
             model_path: Path to the model weights
