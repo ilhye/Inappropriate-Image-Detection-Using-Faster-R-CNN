@@ -66,22 +66,7 @@ const adv_type = [
     title: "Fast Gradient Sign Method (FGSM):",
     description:
       "Find the direction that will most increase the loss (the model's error) and take one small step in that direction.",
-  },
-  {
-    title: "Expectation Over Transformation (EoT):",
-    description:
-      "EoT assumes the adversary's image will be transformed (e.g., rotated, scaled, changed in lighting) before the model sees it.",
-  },
-  {
-    title: "Carlini & Wagner (CW):",
-    description:
-      "It frames the problem as a sophisticated optimization: find the smallest possible perturbation that causes misclassification",
-  },
-  {
-    title: "Backward Pass Differentiable Approximation (BPDA):",
-    description:
-      'Many early defenses (e.g., adding randomization, pre-processing with denoisers) were not truly robust; they just "broke" the gradient, making white-box attacks like PGD fail. BPDA is designed to circumvent these "obfuscated gradients."',
-  },
+  }
 ];
 
 // Function to generate navigation links
